@@ -11,7 +11,7 @@
     "desktop": {
       "revealed": 15,
       "screenshot": "/home/user/Doubao/chats/38448814994028802/12nb/_shots/index_desktop.jpg",
-      "screenshotBytes": 206792,
+      "screenshotBytes": 206853,
       "truncated": false,
       "structure": {
         "title": "12班牛逼 · 权威论证报告",
@@ -78,7 +78,7 @@
   },
   "engine": "playwright",
   "chromiumExec": "/opt/vm/preinstall/ms-playwright/chromium-1169/chrome-linux/chrome",
-  "elapsedSec": 34.83,
+  "elapsedSec": 8.55,
   "schemaVersion": 2,
   "status": "pass",
   "engineInfo": {
@@ -101,7 +101,7 @@
       {
         "viewport": "desktop",
         "path": "/home/user/Doubao/chats/38448814994028802/12nb/_shots/index_desktop.jpg",
-        "size": 206792,
+        "size": 206853,
         "visualCoverage": {
           "complete": true,
           "reason": null

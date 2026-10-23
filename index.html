@@ -320,9 +320,16 @@
   }
   .note.hitp{opacity:0;transition:opacity .18s}
   .note.hitg{opacity:0;transition:opacity .25s}
+  body.lock-scroll{overflow:hidden}
   .game-keys{display:none;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
-  .game-keys button{min-height:54px;font-family:"Noto Serif SC",serif;font-weight:700;font-size:18px;background:var(--ink);color:#fff;border:none;border-radius:6px;cursor:pointer}
-  .game-keys button:active{background:var(--seal)}
+  .game-keys button{
+    min-height:56px;touch-action:manipulation;user-select:none;-webkit-user-select:none;
+    -webkit-tap-highlight-color:transparent;
+    font-family:"Noto Serif SC",serif;font-weight:700;font-size:18px;
+    background:var(--ink);color:#fff;border:none;border-radius:6px;cursor:pointer;
+  }
+  .game-keys button:active,.game-keys button.touched{background:var(--seal)}
+  .lane{touch-action:manipulation;user-select:none;-webkit-user-select:none}
   .game-end{display:none;text-align:center;padding:18px 0 6px}
   .game-end h3{font-family:"Noto Serif SC",serif;font-weight:700;font-size:20px;color:var(--ink)}
   .ge-rank{font-family:"Noto Serif SC",serif;font-weight:900;font-size:56px;color:var(--seal);line-height:1;margin:6px 0 12px}
@@ -330,7 +337,7 @@
   .ge-row b{color:var(--ink)}
   .game-end .btn-play{margin-top:16px}
   .game-end .game-exit{margin-top:10px}
-  @media(max-width:768px){.game-keys{display:grid}}
+  @media(max-width:1024px){.game-keys{display:grid}}
   @media(max-width:600px){.game-stage{height:min(400px,50vh)}}
 
   footer{border-top:1px solid var(--line);padding:34px 0 50px;color:var(--ink-3);font-size:13px;text-align:center}
@@ -567,10 +574,10 @@
       <div class="judge-line"></div>
     </div>
     <div class="game-keys">
-      <button onclick="tapLane(0)">A</button>
-      <button onclick="tapLane(1)">S</button>
-      <button onclick="tapLane(2)">D</button>
-      <button onclick="tapLane(3)">K</button>
+      <button data-lane="0" onclick="tapLane(0)">A</button>
+      <button data-lane="1" onclick="tapLane(1)">S</button>
+      <button data-lane="2" onclick="tapLane(2)">D</button>
+      <button data-lane="3" onclick="tapLane(3)">K</button>
     </div>
     <div class="game-end" id="gEnd">
       <h3>结算 · 12班音游厅</h3>
@@ -810,6 +817,7 @@
   function startGame(){
     ensureAudio();
     document.getElementById('gameOverlay').classList.add('show');
+    document.body.classList.add('lock-scroll');
     resetGame();
     gState='play';
     if(gRaf){cancelAnimationFrame(gRaf)}
@@ -819,6 +827,7 @@
     gState='idle';
     if(gRaf){cancelAnimationFrame(gRaf)}
     document.getElementById('gameOverlay').classList.remove('show');
+    document.body.classList.remove('lock-scroll');
   }
   function showJudge(txt,cls){
     var el=document.getElementById('gJudge');
@@ -906,6 +915,32 @@
     if(gState!=='play')return;
     if(gKeys.hasOwnProperty(e.code)){e.preventDefault();tapLane(gKeys[e.code])}
   });
+
+  /* 触摸适配：多点触控 + 按轨道直接打 */
+  document.querySelector('.game-keys').addEventListener('touchstart',function(e){
+    if(gState!=='play')return;
+    e.preventDefault();
+    for(var i=0;i<e.changedTouches.length;i++){
+      var t=e.changedTouches[i];
+      var el=document.elementFromPoint(t.clientX,t.clientY);
+      var la=el?el.getAttribute('data-lane'):null;
+      if(la!==null){
+        el.classList.add('touched');
+        setTimeout(function(node){node.classList.remove('touched')},120,el);
+        tapLane(parseInt(la,10));
+      }
+    }
+  },{passive:false});
+  document.getElementById('gStage').addEventListener('touchstart',function(e){
+    if(gState!=='play')return;
+    e.preventDefault();
+    var rect=this.getBoundingClientRect();
+    for(var i=0;i<e.changedTouches.length;i++){
+      var x=e.changedTouches[i].clientX-rect.left;
+      var lane=Math.floor(x/rect.width*4);
+      if(lane>=0&&lane<4){tapLane(lane)}
+    }
+  },{passive:false});
 </script>
 </body>
 </html>
