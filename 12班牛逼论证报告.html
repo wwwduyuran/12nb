@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>12班牛逼 · 权威论证报告</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23C2262F'/%3E%3Ctext x='32' y='44' font-size='36' text-anchor='middle' fill='%23F6F3EA' font-family='serif'%3E12%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@600;700;900&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+  :root{
+    --paper:#F6F3EA;
+    --paper-2:#EFEADB;
+    --ink:#1B2A4A;
+    --ink-2:#44506B;
+    --ink-3:#7A8398;
+    --seal:#C2262F;
+    --seal-deep:#9E1B22;
+    --gold:#C99A2E;
+    --line:rgba(27,42,74,.14);
+    --card:#FFFFFF;
+    --shadow:0 14px 40px -22px rgba(27,42,74,.5);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+    color:var(--ink);
+    background:var(--paper);
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+
+  /* ---------- hero ---------- */
+  header.hero{
+    position:relative;
+    padding:64px 0 56px;
+    overflow:hidden;
+  }
+  header.hero::before{
+    content:"";position:absolute;right:-120px;top:-120px;
+    width:420px;height:420px;border-radius:50%;
+    background:radial-gradient(circle at center,rgba(201,154,46,.16),transparent 70%);
+    pointer-events:none;
+  }
+  /* ---------- entrance & ambient animations ---------- */
+  @keyframes riseIn{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes stampIn{0%{opacity:0;transform:scale(.4) rotate(-24deg)}65%{opacity:1;transform:scale(1.08) rotate(-4deg)}100%{opacity:1;transform:scale(1) rotate(-8deg)}}
+  @keyframes floaty{0%,100%{transform:translateY(0) rotate(var(--r,0deg))}50%{transform:translateY(-14px) rotate(var(--r,0deg))}}
+  @keyframes fadeSlide{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+  .hero .doc-bar,.hero .kicker,.hero .tline,.hero .sub,.hero .hero-meta,.hero .stamp{opacity:0;animation:riseIn .8s cubic-bezier(.16,.84,.3,1) forwards}
+  .hero .doc-bar{animation-delay:.05s}
+  .hero .kicker{animation-delay:.18s}
+  .hero .tline:nth-child(1){animation-delay:.3s}
+  .hero .tline:nth-child(2){animation-delay:.45s}
+  .hero .sub{animation-delay:.6s}
+  .hero .hero-meta{animation-delay:.74s}
+  .hero .stamp{animation-delay:.92s;animation-name:stampIn}
+  .tline{display:block}
+  .deco{position:absolute;inset:0;pointer-events:none}
+  .deco .d{position:absolute;font-family:"Noto Serif SC",serif;font-weight:900;color:rgba(201,154,46,.45);animation:floaty 5.5s ease-in-out infinite}
+  .deco .d1{top:12%;right:15%;font-size:28px;--r:6deg}
+  .deco .d2{top:36%;right:5%;font-size:18px;color:rgba(27,42,74,.13);--r:-8deg;animation-delay:1.4s}
+  .deco .d3{bottom:16%;right:23%;font-size:21px;--r:4deg;animation-delay:2.3s}
+  /* scroll reveal */
+  .fade{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease}
+  .fade.in{opacity:1;transform:translateY(0)}
+  .doc-bar{
+    display:flex;align-items:center;gap:12px;
+    font-family:"Noto Serif SC",serif;font-weight:700;
+    color:var(--seal);font-size:13px;letter-spacing:.12em;
+    padding-bottom:18px;border-bottom:2px solid var(--seal);
+    margin-bottom:34px;
+  }
+  .doc-bar .num{color:var(--ink-3)}
+  .doc-bar .line{flex:1;height:1px;background:var(--line)}
+  .kicker{
+    font-family:"Noto Serif SC",serif;font-weight:600;
+    color:var(--gold);letter-spacing:.28em;font-size:14px;
+    margin-bottom:20px;
+  }
+  h1.thesis{
+    font-family:"Noto Serif SC",serif;
+    font-weight:900;font-size:clamp(34px,7vw,64px);
+    line-height:1.18;letter-spacing:.01em;
+    color:var(--ink);
+  }
+  h1.thesis .seal-word{
+    color:var(--seal);position:relative;
+  }
+  h1.thesis .seal-word::after{
+    content:"";position:absolute;left:0;right:0;bottom:4px;height:10px;
+    background:rgba(194,38,47,.16);z-index:-1;
+  }
+  .sub{
+    margin-top:22px;max-width:560px;
+    color:var(--ink-2);font-size:16px;
+  }
+  .hero-meta{
+    display:flex;flex-wrap:wrap;gap:10px 26px;margin-top:30px;
+    font-size:13px;color:var(--ink-3);
+  }
+  .hero-meta b{color:var(--ink);font-weight:700}
+
+  .stamp{
+    margin-top:40px;width:150px;height:150px;border-radius:10px;
+    border:3px solid var(--seal);color:var(--seal);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    font-family:"Noto Serif SC",serif;font-weight:700;text-align:center;
+    transform:rotate(-8deg);box-shadow:inset 0 0 0 3px var(--paper);
+    background:rgba(194,38,47,.04);
+  }
+  .stamp .big{font-size:34px;line-height:1}
+  .stamp .small{font-size:12px;letter-spacing:.2em;margin-top:6px}
+
+  /* ---------- sections ---------- */
+  section{padding:58px 0;border-top:1px solid var(--line)}
+  .sec-head{display:flex;align-items:baseline;gap:16px;margin-bottom:34px}
+  .sec-no{
+    font-family:"Noto Serif SC",serif;font-weight:900;font-size:22px;color:var(--gold);
+  }
+  h2.sec-title{
+    font-family:"Noto Serif SC",serif;font-weight:700;
+    font-size:clamp(22px,4vw,30px);
+  }
+  .sec-sub{color:var(--ink-3);font-size:14px;margin-top:6px}
+
+  /* thesis block */
+  .thesis-card{
+    background:var(--card);border:1px solid var(--line);border-left:4px solid var(--seal);
+    padding:26px 26px;box-shadow:var(--shadow);
+  }
+  .thesis-card p{font-family:"Noto Serif SC",serif;font-size:clamp(17px,2.4vw,21px);color:var(--ink)}
+
+  /* evidence grid */
+  .ev-grid{display:grid;grid-template-columns:1fr;gap:18px}
+  @media(min-width:768px){.ev-grid{grid-template-columns:repeat(2,1fr)}}
+  .ev{
+    background:var(--card);border:1px solid var(--line);
+    padding:22px 22px 24px;position:relative;box-shadow:var(--shadow);
+    transition:transform .25s ease,box-shadow .25s ease;
+  }
+  .ev:hover{transform:translateY(-5px);box-shadow:0 26px 48px -22px rgba(27,42,74,.55)}
+  .ev .tag{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:12px;letter-spacing:.08em;color:var(--seal);font-weight:700;
+    margin-bottom:12px;
+  }
+  .ev .tag .dot{width:8px;height:8px;background:var(--seal);display:inline-block}
+  .ev h3{font-family:"Noto Serif SC",serif;font-size:20px;font-weight:700;margin-bottom:8px}
+  .ev p{color:var(--ink-2);font-size:14.5px}
+  .ev .proof{
+    margin-top:14px;font-size:12.5px;color:var(--ink-3);
+    border-top:1px dashed var(--line);padding-top:12px;
+  }
+  .ev .proof b{color:var(--gold)}
+
+  /* charts */
+  .chart-cards{display:grid;grid-template-columns:1fr;gap:22px}
+  @media(min-width:900px){.chart-cards{grid-template-columns:1fr 1fr}}
+  .chart-card{background:var(--card);border:1px solid var(--line);padding:20px;box-shadow:var(--shadow)}
+  .chart-card h3{font-family:"Noto Serif SC",serif;font-size:17px;margin-bottom:4px}
+  .chart-card .cap{font-size:12.5px;color:var(--ink-3);margin-bottom:12px}
+  .chart{width:100%;height:320px}
+
+  /* refute */
+  .refute{display:flex;flex-direction:column;gap:14px}
+  .obj{
+    background:var(--card);border:1px solid var(--line);
+    border-radius:2px;overflow:hidden;box-shadow:var(--shadow);
+  }
+  .obj-q{
+    display:flex;align-items:center;gap:14px;justify-content:space-between;
+    padding:16px 20px;cursor:pointer;font-family:"Noto Serif SC",serif;font-weight:700;font-size:16px;
+    user-select:none;min-height:48px;transition:background .2s ease;
+  }
+  .obj-q:hover{background:var(--paper)}
+  .obj-q .qx{color:var(--seal);font-weight:900;flex:none}
+  .obj-q .txt{flex:1}
+  .obj-q .chev{color:var(--ink-3);transition:transform .2s ease;flex:none}
+  .obj.open .chev{transform:rotate(90deg)}
+  .obj-a{
+    display:none;padding:0 20px 18px 20px;color:var(--ink-2);font-size:14.5px;
+  }
+  .obj.open .obj-a{display:block;animation:fadeSlide .3s ease}
+  .obj-a .ans{margin-bottom:8px}
+  .obj-a .w{color:var(--ink-3);font-size:12.5px;border-top:1px dashed var(--line);padding-top:10px}
+
+  /* verdict */
+  .verdict{position:relative}
+  .verdict-paper{
+    background:var(--card);border:1px solid var(--line);border-top:4px solid var(--ink);
+    padding:34px 26px;text-align:center;box-shadow:var(--shadow);
+  }
+  .verdict-paper .headline{font-family:"Noto Serif SC",serif;font-weight:900;font-size:clamp(26px,5vw,40px);color:var(--ink)}
+  .verdict-paper .headline .seal2{color:var(--seal)}
+  .verdict-paper .verdict-text{margin:18px auto 0;max-width:560px;color:var(--ink-2);font-size:15px}
+  .btn-stamp{
+    margin-top:26px;display:inline-flex;align-items:center;gap:10px;
+    background:var(--seal);color:#fff;border:none;border-radius:4px;
+    padding:14px 26px;font-family:"Noto Serif SC",serif;font-weight:700;font-size:16px;
+    cursor:pointer;transition:transform .12s ease,background .2s ease;
+  }
+  .btn-stamp:hover{background:var(--seal-deep)}
+  .btn-stamp:active{transform:scale(.96)}
+  .seal-pop{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(0) rotate(-14deg);
+    width:150px;height:150px;border:3px solid var(--seal);border-radius:8px;color:var(--seal);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    font-family:"Noto Serif SC",serif;font-weight:900;text-align:center;
+    background:rgba(246,243,234,.92);opacity:0;pointer-events:none;z-index:5;
+  }
+  .seal-pop .big{font-size:30px}
+  .seal-pop .small{font-size:11px;letter-spacing:.15em;margin-top:4px}
+  .seal-pop.pop{animation:stampin .55s cubic-bezier(.2,.9,.3,1.2) forwards}
+  @keyframes stampin{0%{transform:translate(-50%,-50%) scale(0) rotate(-14deg);opacity:0}60%{transform:translate(-50%,-50%) scale(1.15) rotate(-14deg);opacity:1}100%{transform:translate(-50%,-50%) scale(1) rotate(-14deg);opacity:1}}
+
+  /* naibi meter */
+  .meter{
+    margin-top:34px;background:var(--paper-2);border:1px solid var(--line);
+    padding:22px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;
+  }
+  .meter .lbl{font-size:13px;color:var(--ink-3)}
+  .meter .val{font-family:"Noto Serif SC",serif;font-weight:900;font-size:52px;color:var(--seal);line-height:1}
+  .meter .bar{width:100%;max-width:420px;height:14px;background:#fff;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .meter .bar i{display:block;height:100%;width:78%;background:linear-gradient(90deg,var(--gold),var(--seal));border-radius:8px;transition:width .5s ease}
+  .meter .btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+  .meter button{
+    background:var(--ink);color:#fff;border:none;border-radius:4px;
+    padding:10px 20px;font-size:14px;cursor:pointer;min-height:44px;font-family:"Noto Sans SC",sans-serif;
+  }
+  .meter button:hover{background:var(--ink-2)}
+
+  /* ---------- quick jump nav ---------- */
+  section{scroll-margin-top:16px}
+  .jump{
+    position:fixed;right:14px;top:50%;transform:translateY(-50%);
+    display:flex;flex-direction:column;gap:10px;z-index:50;
+  }
+  .jp{
+    width:38px;height:38px;border-radius:50%;
+    background:var(--paper);border:1.5px solid var(--line);color:var(--ink-3);
+    display:flex;align-items:center;justify-content:center;
+    font-family:"Noto Serif SC",serif;font-weight:700;font-size:14px;
+    text-decoration:none;box-shadow:0 6px 16px -10px rgba(27,42,74,.4);
+    transition:all .25s ease;
+  }
+  .jp:hover{color:var(--seal);border-color:var(--seal);transform:scale(1.08)}
+  .jp.on{background:var(--ink);border-color:var(--ink);color:#fff}
+  .fabs{position:fixed;right:14px;bottom:22px;display:flex;flex-direction:column;gap:10px;align-items:flex-end;z-index:50}
+  .fab{
+    border:none;cursor:pointer;min-height:44px;padding:0 18px;border-radius:22px;
+    font-family:"Noto Serif SC",serif;font-weight:700;font-size:14px;
+    background:var(--ink);color:#fff;box-shadow:0 12px 26px -12px rgba(27,42,74,.6);
+    display:flex;align-items:center;gap:6px;
+    transition:transform .2s ease,background .2s ease,opacity .25s ease;
+  }
+  .fab:hover{background:var(--seal)}
+  .fab:active{transform:scale(.95)}
+  .fab .arr{color:var(--gold);font-size:16px;line-height:1}
+  #toTop{opacity:0;pointer-events:none;background:var(--paper);color:var(--ink);border:1.5px solid var(--line)}
+  #toTop.show{opacity:1;pointer-events:auto}
+  #toTop.show:hover{background:var(--seal);color:#fff;border-color:var(--seal)}
+  @media(max-width:600px){
+    .jump{right:8px}
+    .jp{width:32px;height:32px;font-size:12px}
+    .fabs{right:10px;bottom:16px}
+  }
+
+  /* stamp burst particles */
+  .particle{
+    position:absolute;width:10px;height:10px;border-radius:2px;
+    background:var(--gold);pointer-events:none;z-index:6;
+    animation:fly .75s ease-out forwards;
+  }
+  @keyframes fly{from{opacity:1;transform:translate(0,0) scale(1)}to{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.3)}}
+
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+    .fade{opacity:1;transform:none}
+    .deco{display:none}
+  }
+
+  footer{border-top:1px solid var(--line);padding:34px 0 50px;color:var(--ink-3);font-size:13px;text-align:center}
+
+  @media(max-width:600px){
+    .stamp{width:110px;height:110px}
+    .stamp .big{font-size:26px}
+    section{padding:44px 0}
+  }
+</style>
+</head>
+<body>
+
+<nav class="jump" aria-label="快速跳转">
+  <a class="jp on" href="#s1" title="核心主张">壹</a>
+  <a class="jp" href="#s2" title="证据链">贰</a>
+  <a class="jp" href="#s3" title="数据支撑">叁</a>
+  <a class="jp" href="#s4" title="驳斥反方">肆</a>
+  <a class="jp" href="#s5" title="最终裁定">伍</a>
+</nav>
+<div class="fabs">
+  <button class="fab" onclick="nextSection()">下一节 <span class="arr">↓</span></button>
+  <button class="fab" id="toTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">回顶部 ↑</button>
+</div>
+
+<header class="hero">
+  <div class="deco" aria-hidden="true"><span class="d d1">＋</span><span class="d d2">×12</span><span class="d d3">＋</span></div>
+  <div class="wrap">
+    <div class="doc-bar"><span class="num">档案编号</span><span>NB-2026-12</span><span class="line"></span><span>机密 · 仅限12班传阅</span></div>
+    <div class="kicker">权 威 论 证 · 铁 证 如 山</div>
+    <h1 class="thesis"><span class="tline">12班很<span class="seal-word">牛逼</span>，</span><span class="tline">经本报告多方论证，无懈可击。</span></h1>
+    <p class="sub">本报告不提供反证机会——所有反对意见均已在此被逐条驳倒。下结论前，请先看完证据链。</p>
+    <div class="hero-meta">
+      <span><b>审理机构</b> 12班评审委员会</span>
+      <span><b>受理日期</b> 本学期 · 每时每刻</span>
+      <span><b>审理结论</b> 牛逼成立</span>
+    </div>
+    <div class="stamp" aria-hidden="true">
+      <span class="big">牛逼</span>
+      <span class="small">已 认 证</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section id="s1">
+    <div class="sec-head">
+      <span class="sec-no">壹</span>
+      <div><h2 class="sec-title">核心主张</h2><div class="sec-sub">本报告的全部论证，皆围绕同一命题展开</div></div>
+    </div>
+    <div class="thesis-card fade">
+      <p>「12班是全校最牛逼的班级。」——此命题自开学日起成立，此后从未失效，且本报告未能找到任何有力反例，故判定其为真。</p>
+    </div>
+  </section>
+
+  <section id="s2">
+    <div class="sec-head">
+      <span class="sec-no">贰</span>
+      <div><h2 class="sec-title">证据链 · 六大铁证</h2><div class="sec-sub">每条证据均附出庭说明，随时接受质证</div></div>
+    </div>
+    <div class="ev-grid">
+      <div class="ev fade" data-delay="0s">
+        <div class="tag"><span class="dot"></span>证据 01</div>
+        <h3>快乐浓度超标</h3>
+        <p>课上能憋笑，课间能疯跑，课后再来一轮。据本人不专业实测，教室笑声分贝常年突破 90dB，快乐浓度稳居年级第一梯队，无班级可望其项背。</p>
+        <div class="proof"><b>佐证：</b>音乐课跑调合唱，居然唱出了团魂。</div>
+      </div>
+      <div class="ev fade" data-delay=".08s">
+        <div class="tag"><span class="dot"></span>证据 02</div>
+        <h3>团结指数爆表</h3>
+        <p>运动会、拔河、大扫除，人人抢着上。参赛选手还没进场，啦啦队的嗓子先哑了——这种自我牺牲精神，只在团结度满级的班级出现。</p>
+        <div class="proof"><b>佐证：</b>接力赛掉棒，全队硬是追回第三名。</div>
+      </div>
+      <div class="ev fade" data-delay=".16s">
+        <div class="tag"><span class="dot"></span>证据 03</div>
+        <h3>老师偏爱有加</h3>
+        <p>科任老师最常挂在嘴边的一句话是"你们班又来了"。课间被点名的次数全年级第一——这并非批评，而是被偏爱的人才有的待遇。</p>
+        <div class="proof"><b>佐证：</b>老师只对12班用"又"，对别班用"才"。</div>
+      </div>
+      <div class="ev fade" data-delay=".24s">
+        <div class="tag"><span class="dot"></span>证据 04</div>
+        <h3>变脸速度专业级</h3>
+        <p>平时吵得屋顶要掀，班主任一进门，三秒内全班进入"奋笔疾书"状态。这种收放自如，是一种高级的班级战术素养。</p>
+        <div class="proof"><b>佐证：</b>变脸速度快过镜头切广告，无删减版。</div>
+      </div>
+      <div class="ev fade" data-delay=".32s">
+        <div class="tag"><span class="dot"></span>证据 05</div>
+        <h3>搞怪天赋碾压</h3>
+        <p>班级里的梗多到能开一场脱口秀，黑板报永远最快最花，运动会班服自己设计。论整活能力，12班自认第二，无人敢认第一。</p>
+        <div class="proof"><b>佐证：</b>黑板报还没出完，隔壁班已来"取经"。</div>
+      </div>
+      <div class="ev fade" data-delay=".4s">
+        <div class="tag"><span class="dot"></span>证据 06</div>
+        <h3>人均潜力无限</h3>
+        <p>人均两门以上才艺，考试前一周学习效率呈指数级增长。潜力这种东西，平时藏得深，一到大考前就集体爆发。</p>
+        <div class="proof"><b>佐证：</b>平时像放假，考前像高考，切换无痕。</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="s3">
+    <div class="sec-head">
+      <span class="sec-no">叁</span>
+      <div><h2 class="sec-title">数据支撑</h2><div class="sec-sub">用数字说话，让反方无话可说</div></div>
+    </div>
+    <div class="chart-cards">
+      <div class="chart-card fade">
+        <h3>十二班「牛逼雷达图」</h3>
+        <div class="cap">六维属性综合评估 · 满分10分 · 本人严肃测量</div>
+        <div class="chart" id="radar"></div>
+      </div>
+      <div class="chart-card fade" data-delay=".12s">
+        <h3>自习课分贝曲线</h3>
+        <div class="cap">班主任出现前后 · 单位 dB · 断崖式下降即为铁证</div>
+        <div class="chart" id="bar"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="s4">
+    <div class="sec-head">
+      <span class="sec-no">肆</span>
+      <div><h2 class="sec-title">驳斥反方观点</h2><div class="sec-sub">点击反对意见，查看本庭答辩（全部成立）</div></div>
+    </div>
+    <div class="refute">
+      <div class="obj">
+        <div class="obj-q" onclick="toggleObj(this)">
+          <span class="qx">反方</span>
+          <span class="txt">"你们班也太吵了吧？"</span>
+          <span class="chev">›</span>
+        </div>
+        <div class="obj-a">
+          <p class="ans"><b>答辩：</b>吵是活力，安静是战术，二者兼备。能吵能静，说明全班注意力收放自如——这叫动态平衡，不叫吵。</p>
+          <p class="w">裁定：反对无效，活力成立。</p>
+        </div>
+      </div>
+      <div class="obj fade" data-delay=".07s">
+        <div class="obj-q" onclick="toggleObj(this)">
+          <span class="qx">反方</span>
+          <span class="txt">"那成绩呢？总得谈成绩吧。"</span>
+          <span class="chev">›</span>
+        </div>
+        <div class="obj-a">
+          <p class="ans"><b>答辩：</b>12班是标准潜力股，平时低调蓄力，一到关键时刻集体发功。潜力这种东西，谈"现在"没意思，要看"上限"。</p>
+          <p class="w">裁定：反对无效，潜力成立。</p>
+        </div>
+      </div>
+      <div class="obj fade" data-delay=".14s">
+        <div class="obj-q" onclick="toggleObj(this)">
+          <span class="qx">反方</span>
+          <span class="txt">"可老师老说你们班。"</span>
+          <span class="chev">›</span>
+        </div>
+        <div class="obj-a">
+          <p class="ans"><b>答辩：</b>被念叨等于被偏爱。老师要真放弃一个班，连批评都懒得给。被反复点名，恰说明12班在老师心里分量最重。</p>
+          <p class="w">裁定：反对无效，偏爱成立。</p>
+        </div>
+      </div>
+      <div class="obj fade" data-delay=".21s">
+        <div class="obj-q" onclick="toggleObj(this)">
+          <span class="qx">反方</span>
+          <span class="txt">"你们这就是吹牛。"</span>
+          <span class="chev">›</span>
+        </div>
+        <div class="obj-a">
+          <p class="ans"><b>答辩：</b>本报告证据链完整、数据可追溯、裁定程序正当，句句有据。若仍有异议，欢迎当面对簿公堂——但我们已提前封庭。</p>
+          <p class="w">裁定：反对无效，本报告自证成立。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="verdict" id="s5">
+    <div class="sec-head">
+      <span class="sec-no">伍</span>
+      <div><h2 class="sec-title">最终裁定</h2><div class="sec-sub">按下按钮，加盖官方认证章</div></div>
+    </div>
+    <div class="verdict-paper fade">
+      <div class="headline">裁定：12班，<span class="seal2">牛逼</span>成立。</div>
+      <p class="verdict-text">经六大铁证、双份数据、四次驳斥综合审理，本庭一致裁定：12班牛逼这一命题自始至终成立，且在本报告存续期间持续有效。任何人不得上诉，除非你能找到一个更牛逼的班——反正目前没有。</p>
+      <button class="btn-stamp" onclick="stampSeal()">加盖认证章</button>
+      <div class="seal-pop" id="sealPop"><span class="big">牛逼</span><span class="small">已 认 证</span></div>
+    </div>
+
+    <div class="meter fade" data-delay=".15s">
+      <span class="lbl">实时监测 · 12班牛逼值</span>
+      <div class="val" id="nbVal">999</div>
+      <div class="bar"><i id="nbBar" style="width:0"></i></div>
+      <p style="font-size:13px;color:var(--ink-3)">数值只涨不跌，点击按钮可作无意义但快乐的补充认证。</p>
+      <div class="btns">
+        <button onclick="boost(13)">+13 再补一条证据</button>
+        <button onclick="boost(52)">+52 来一记响亮口号</button>
+        <button onclick="boost(99)">+99 终极认证</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    12班牛逼论证报告 · 本报告最终解释权归12班全体所有<br>
+    数据来源：本人亲自观察；结论严谨程度：相当严谨。
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<script>
+  /* ---------- accordion ---------- */
+  function toggleObj(el){
+    el.classList.toggle('open');
+  }
+
+  /* ---------- seal stamp + burst ---------- */
+  function stampSeal(){
+    var pop=document.getElementById('sealPop');
+    pop.classList.remove('pop');
+    void pop.offsetWidth; /* restart animation */
+    pop.classList.add('pop');
+    burstParticles(pop);
+  }
+  function burstParticles(anchor){
+    var vp=document.querySelector('.verdict');
+    var a=anchor.getBoundingClientRect();
+    var v=vp.getBoundingClientRect();
+    var cx=a.left+a.width/2-v.left, cy=a.top+a.height/2-v.top;
+    for(var i=0;i<14;i++){
+      var p=document.createElement('span');
+      p.className='particle';
+      var ang=Math.random()*Math.PI*2, dist=55+Math.random()*95;
+      p.style.left=cx+'px'; p.style.top=cy+'px';
+      p.style.setProperty('--dx',(Math.cos(ang)*dist).toFixed(1)+'px');
+      p.style.setProperty('--dy',(Math.sin(ang)*dist).toFixed(1)+'px');
+      p.style.background=i%2? 'var(--gold)':'var(--seal)';
+      vp.appendChild(p);
+      setTimeout(function(el){el.remove()},780,p);
+    }
+  }
+
+  /* ---------- naive value meter ---------- */
+  var val=0;
+  function animateNum(from,to){
+    var start=performance.now(), dur=650;
+    function step(now){
+      var t=Math.min(1,(now-start)/dur);
+      var eased=1-Math.pow(1-t,3);
+      document.getElementById('nbVal').textContent=Math.round(from+(to-from)*eased).toLocaleString();
+      if(t<1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  function boost(add){
+    var from=val;
+    val=Math.min(9999, val+add);
+    animateNum(from,val);
+    var pct=Math.min(100, 78+(val-999)/100);
+    if(pct<0){pct=78}
+    document.getElementById('nbBar').style.width=pct.toFixed(1)+'%';
+  }
+
+  /* ---------- scroll reveal ---------- */
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        var el=e.target;
+        if(el.dataset.delay){el.style.transitionDelay=el.dataset.delay}
+        el.classList.add('in');
+        setTimeout(function(){el.style.transitionDelay='0s'},1100);
+        io.unobserve(el);
+      }
+    });
+  },{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.fade').forEach(function(el){io.observe(el)});
+
+  window.addEventListener('load',function(){
+    animateNum(0,999);
+    val=999;
+    requestAnimationFrame(function(){
+      document.getElementById('nbBar').style.width='78%';
+    });
+  });
+
+  /* ---------- quick jump ---------- */
+  var secIds=['s1','s2','s3','s4','s5'];
+  function currentSec(){
+    var pos=window.scrollY+window.innerHeight*0.35, cur=0;
+    for(var i=0;i<secIds.length;i++){
+      var el=document.getElementById(secIds[i]);
+      if(el && el.offsetTop<=pos){cur=i}
+    }
+    return cur;
+  }
+  function nextSection(){
+    var cur=currentSec();
+    if(cur>=secIds.length-1){
+      window.scrollTo({top:0,behavior:'smooth'});
+    }else{
+      var t=document.getElementById(secIds[cur+1]);
+      if(t){t.scrollIntoView({behavior:'smooth',block:'start'})}
+    }
+  }
+  function onScrollNav(){
+    var cur=currentSec();
+    var dots=document.querySelectorAll('.jp');
+    for(var i=0;i<dots.length;i++){dots[i].classList.toggle('on',i===cur)}
+    var tp=document.getElementById('toTop');
+    if(tp){tp.classList.toggle('show',window.scrollY>500)}
+  }
+  window.addEventListener('scroll',onScrollNav,{passive:true});
+  window.addEventListener('load',onScrollNav);
+  onScrollNav();
+
+  /* ---------- charts ---------- */
+  var radarColors={ink:'#1B2A4A',seal:'#C2262F',gold:'#C99A2E',grid:'rgba(27,42,74,.15)'};
+  var radar=echarts.init(document.getElementById('radar'));
+  radar.setOption({
+    animationDuration:1100,animationEasing:'cubicOut',
+    tooltip:{},
+    radar:{
+      indicator:[
+        {name:'快乐浓度',max:10},{name:'团结指数',max:10},
+        {name:'搞怪天赋',max:10},{name:'战术安静',max:10},
+        {name:'老师偏爱',max:10},{name:'人均潜力',max:10}
+      ],
+      radius:'68%',
+      axisName:{color:'#44506B',fontFamily:'Noto Sans SC'},
+      splitLine:{lineStyle:{color:radarColors.grid}},
+      splitArea:{areaStyle:{color:['rgba(246,243,234,.4)','rgba(255,255,255,.2)']}},
+      axisLine:{lineStyle:{color:radarColors.grid}}
+    },
+    series:[{
+      type:'radar',
+      data:[{value:[9.8,9.6,9.9,9.5,9.7,9.8],name:'12班',symbol:'circle',symbolSize:6,
+        lineStyle:{width:3,color:radarColors.seal},
+        itemStyle:{color:radarColors.seal},
+        areaStyle:{color:'rgba(194,38,47,.18)'}}]
+    }]
+  });
+
+  var bar=echarts.init(document.getElementById('bar'));
+  bar.setOption({
+    animationDuration:900,animationEasing:'cubicOut',
+    tooltip:{trigger:'axis'},
+    grid:{left:'6%',right:'6%',top:'12%',bottom:'12%',containLabel:true},
+    xAxis:{
+      type:'category',
+      data:['早读','课间','自习前段','班主任进门','自习后段','放学'],
+      axisLine:{lineStyle:{color:radarColors.ink}},
+      axisLabel:{color:'#44506B',fontFamily:'Noto Sans SC'}
+    },
+    yAxis:{type:'value',max:100,splitLine:{lineStyle:{color:radarColors.grid}},axisLabel:{color:'#7A8398'}},
+    series:[{
+      name:'分贝',
+      type:'bar',
+      barWidth:'52%',
+      data:[72,88,76,38,64,90],
+      itemStyle:{
+        color:function(p){
+          return p.dataIndex===3 ? radarColors.gold : radarColors.ink;
+        },
+        borderRadius:[4,4,0,0]
+      },
+      label:{show:true,position:'top',color:'#44506B',fontFamily:'Noto Sans SC'}
+    }]
+  });
+
+  window.addEventListener('resize',function(){radar.resize();bar.resize();});
+</script>
+</body>
+</html>
