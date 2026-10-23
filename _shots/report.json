@@ -11,7 +11,7 @@
     "desktop": {
       "revealed": 15,
       "screenshot": "/home/user/Doubao/chats/38448814994028802/12nb/_shots/index_desktop.jpg",
-      "screenshotBytes": 206853,
+      "screenshotBytes": 211175,
       "truncated": false,
       "structure": {
         "title": "12班牛逼 · 权威论证报告",
@@ -22,7 +22,7 @@
         },
         "fullpage": {
           "w": 1440,
-          "h": 4574
+          "h": 4598
         },
         "counts": {
           "section": 6,
@@ -32,10 +32,16 @@
           "canvas": 2,
           "svg": 0,
           "links": 6,
-          "buttons": 14
+          "buttons": 7
         }
       },
-      "consoleErrors": [],
+      "consoleErrors": [
+        {
+          "type": "error",
+          "text": "Potential permissions policy violation: fullscreen is not allowed in this document.",
+          "location": ""
+        }
+      ],
       "consoleWarnings": [],
       "horizontalOverflow": [],
       "resourceErrors": []
@@ -57,7 +63,7 @@
         },
         "fullpage": {
           "w": 390,
-          "h": 5860
+          "h": 5881
         },
         "counts": {
           "section": 6,
@@ -67,10 +73,16 @@
           "canvas": 2,
           "svg": 0,
           "links": 6,
-          "buttons": 14
+          "buttons": 7
         }
       },
-      "consoleErrors": [],
+      "consoleErrors": [
+        {
+          "type": "error",
+          "text": "Potential permissions policy violation: fullscreen is not allowed in this document.",
+          "location": ""
+        }
+      ],
       "consoleWarnings": [],
       "horizontalOverflow": [],
       "resourceErrors": []
@@ -78,9 +90,9 @@
   },
   "engine": "playwright",
   "chromiumExec": "/opt/vm/preinstall/ms-playwright/chromium-1169/chrome-linux/chrome",
-  "elapsedSec": 8.55,
+  "elapsedSec": 9.98,
   "schemaVersion": 2,
-  "status": "pass",
+  "status": "fail",
   "engineInfo": {
     "name": "playwright",
     "degraded": false,
@@ -101,7 +113,7 @@
       {
         "viewport": "desktop",
         "path": "/home/user/Doubao/chats/38448814994028802/12nb/_shots/index_desktop.jpg",
-        "size": 206853,
+        "size": 211175,
         "visualCoverage": {
           "complete": true,
           "reason": null
@@ -122,11 +134,45 @@
   },
   "summary": {
     "blocker": 0,
-    "error": 0,
+    "error": 2,
     "warning": 0,
     "info": 0
   },
-  "findings": [],
-  "prioritizedActions": [],
+  "findings": [
+    {
+      "ruleId": "consoleErrors",
+      "severity": "error",
+      "kind": "console",
+      "viewport": "desktop",
+      "selector": null,
+      "evidence": {
+        "type": "error",
+        "text": "Potential permissions policy violation: fullscreen is not allowed in this document.",
+        "location": ""
+      },
+      "dedupeKey": "consoleErrors|desktop||0"
+    },
+    {
+      "ruleId": "consoleErrors",
+      "severity": "error",
+      "kind": "console",
+      "viewport": "mobile",
+      "selector": null,
+      "evidence": {
+        "type": "error",
+        "text": "Potential permissions policy violation: fullscreen is not allowed in this document.",
+        "location": ""
+      },
+      "dedupeKey": "consoleErrors|mobile||0"
+    }
+  ],
+  "prioritizedActions": [
+    {
+      "ruleId": "consoleErrors",
+      "severity": "error",
+      "viewport": "desktop",
+      "selector": null
+    }
+  ],
   "reportPath": "/home/user/Doubao/chats/38448814994028802/12nb/_shots/report.json"
 }

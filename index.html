@@ -292,53 +292,10 @@
   .btn-play:hover{background:var(--seal-deep)}
   .btn-play:active{transform:scale(.96)}
   .arcade-foot{margin-top:14px;color:var(--ink-3);font-size:12.5px}
-  .game-overlay{
-    position:fixed;inset:0;z-index:100;background:rgba(20,28,50,.97);
-    display:none;align-items:center;justify-content:center;padding:16px;
-  }
-  .game-overlay.show{display:flex}
-  .game-panel{position:relative;width:min(440px,96vw);max-height:94vh;overflow:auto;background:var(--paper);border:1px solid rgba(246,243,234,.2);padding:16px 16px 18px;box-shadow:0 30px 80px -30px rgba(0,0,0,.8)}
-  .game-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
-  .game-hud{color:var(--ink-3);font-size:12px;display:flex;align-items:baseline;gap:6px}
-  .game-hud b{font-family:"Noto Serif SC",serif;font-size:24px;color:var(--seal)}
-  .game-title{font-family:"Noto Serif SC",serif;font-weight:700;font-size:14px;color:var(--ink)}
-  .game-exit{background:none;border:1px solid var(--line);color:var(--ink-3);border-radius:4px;padding:6px 12px;font-size:12px;cursor:pointer;min-height:32px;font-family:"Noto Sans SC",sans-serif}
-  .game-exit:hover{color:var(--seal);border-color:var(--seal)}
-  .game-judge{height:36px;text-align:center;font-family:"Noto Serif SC",serif;font-weight:900;font-size:22px;letter-spacing:.12em;color:var(--gold);line-height:36px}
-  .game-judge.good{color:#4A7BB5}
-  .game-judge.miss{color:var(--seal)}
-  .game-stage{position:relative;height:min(430px,56vh);background:#0F1526;border:2px solid var(--ink);overflow:hidden}
-  .lane{position:absolute;top:0;bottom:0;width:25%;border-right:1px dashed rgba(246,243,234,.12);cursor:pointer}
-  .lane:nth-child(1){left:0}
-  .lane:nth-child(2){left:25%}
-  .lane:nth-child(3){left:50%}
-  .lane:nth-child(4){left:75%;border-right:none}
-  .judge-line{position:absolute;left:0;right:0;bottom:76px;height:3px;background:var(--gold);box-shadow:0 0 12px rgba(201,154,46,.8)}
-  .note{
-    position:absolute;width:17%;aspect-ratio:1;border-radius:4px;
-    background:var(--seal);box-shadow:0 0 10px rgba(194,38,47,.5);
-  }
-  .note.hitp{opacity:0;transition:opacity .18s}
-  .note.hitg{opacity:0;transition:opacity .25s}
   body.lock-scroll{overflow:hidden}
-  .game-keys{display:none;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
-  .game-keys button{
-    min-height:56px;touch-action:manipulation;user-select:none;-webkit-user-select:none;
-    -webkit-tap-highlight-color:transparent;
-    font-family:"Noto Serif SC",serif;font-weight:700;font-size:18px;
-    background:var(--ink);color:#fff;border:none;border-radius:6px;cursor:pointer;
-  }
-  .game-keys button:active,.game-keys button.touched{background:var(--seal)}
-  .lane{touch-action:manipulation;user-select:none;-webkit-user-select:none}
-  .game-end{display:none;text-align:center;padding:18px 0 6px}
-  .game-end h3{font-family:"Noto Serif SC",serif;font-weight:700;font-size:20px;color:var(--ink)}
-  .ge-rank{font-family:"Noto Serif SC",serif;font-weight:900;font-size:56px;color:var(--seal);line-height:1;margin:6px 0 12px}
-  .ge-row{display:flex;justify-content:space-between;max-width:300px;margin:6px auto;font-size:13px;color:var(--ink-2)}
-  .ge-row b{color:var(--ink)}
-  .game-end .btn-play{margin-top:16px}
-  .game-end .game-exit{margin-top:10px}
-  @media(max-width:1024px){.game-keys{display:grid}}
-  @media(max-width:600px){.game-stage{height:min(400px,50vh)}}
+  .neon-overlay{position:fixed;inset:0;z-index:120;background:#0b0e1a;display:none}
+  .neon-overlay.show{display:block}
+  .neon-frame{position:absolute;inset:0;width:100%;height:100%;border:0}
 
   footer{border-top:1px solid var(--line);padding:34px 0 50px;color:var(--ink-3);font-size:13px;text-align:center}
 
@@ -543,9 +500,9 @@
       <div><h2 class="sec-title">班级音游厅</h2><div class="sec-sub">应同学要求开设 · 曲子是现场原创的，输了不许怪曲子</div></div>
     </div>
     <div class="arcade fade">
-      <p class="arcade-note">电脑按 <b>A / S / D / K</b> 四个键（也可以直接点轨道）；手机戳屏幕下方四个键。判定：PERFECT ±0.05 秒 · GOOD ±0.12 秒 · 超过算 MISS。</p>
-      <button class="btn-play" onclick="startGame()">开始打歌</button>
-      <p class="arcade-foot">成绩将被当场记住，但不会写进档案。</p>
+      <p class="arcade-note">同学特供 <b>霓虹轨迹 NEON TRACE</b> · Phigros 风格下落音游：判定线会漂移旋转，音符分点按 / 长按 / 滑键，内置 3 首原创合成曲，EZ / HD / AT 三档难度，支持多点触控。</p>
+      <button class="btn-play" onclick="openNeon()">进入霓虹轨迹</button>
+      <p class="arcade-foot">成绩自动存档在浏览器里，下次进来还能看到 BEST。</p>
     </div>
   </section>
 
@@ -558,37 +515,8 @@
   </div>
 </footer>
 
-<div class="game-overlay" id="gameOverlay">
-  <div class="game-panel">
-    <div class="game-top">
-      <div class="game-hud"><span>分数</span><b id="gScore">0</b></div>
-      <div class="game-title">12班音游厅 · 主打曲《牛逼论》</div>
-      <button class="game-exit" onclick="quitGame()">退出</button>
-    </div>
-    <div class="game-judge" id="gJudge"></div>
-    <div class="game-stage" id="gStage">
-      <div class="lane" onclick="tapLane(0)"></div>
-      <div class="lane" onclick="tapLane(1)"></div>
-      <div class="lane" onclick="tapLane(2)"></div>
-      <div class="lane" onclick="tapLane(3)"></div>
-      <div class="judge-line"></div>
-    </div>
-    <div class="game-keys">
-      <button data-lane="0" onclick="tapLane(0)">A</button>
-      <button data-lane="1" onclick="tapLane(1)">S</button>
-      <button data-lane="2" onclick="tapLane(2)">D</button>
-      <button data-lane="3" onclick="tapLane(3)">K</button>
-    </div>
-    <div class="game-end" id="gEnd">
-      <h3>结算 · 12班音游厅</h3>
-      <div class="ge-rank" id="gRank">S</div>
-      <div class="ge-row"><span>分数</span><b id="gEndScore">0</b></div>
-      <div class="ge-row"><span>最大连击</span><b id="gEndCombo">0</b></div>
-      <div class="ge-row"><span>PERFECT / GOOD / MISS</span><b id="gEndDetail">0 / 0 / 0</b></div>
-      <button class="btn-play" onclick="startGame()">再来一次</button>
-      <button class="game-exit" onclick="quitGame()">回到报告</button>
-    </div>
-  </div>
+<div class="neon-overlay" id="neonOverlay">
+  <iframe class="neon-frame" id="neonFrame" src="neon-trace.html" title="霓虹轨迹" allow="fullscreen" sandbox="allow-scripts allow-same-origin"></iframe>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
@@ -753,194 +681,21 @@
 
   window.addEventListener('resize',function(){radar.resize();bar.resize();});
 
-  /* ---------- 班级音游厅 ---------- */
-  var gState='idle',gScore=0,gCombo=0,gMaxCombo=0,gPerfect=0,gGood=0,gMiss=0;
-  var gNotes=[],gElapsed=0,gLastBeat=-1,gRaf=null,gStartT=null,gEnded=false;
-  var gBeat=0.5,gLead=1.6,gJudgeY=0,gTravel=0;
-  var actx=null;
-
-  function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-
-  function ensureAudio(){
-    if(!actx){try{actx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}
-    if(actx && actx.state==='suspended'){actx.resume()}
-  }
-  function playTone(freq,dur,vol,type){
-    if(!actx)return;
-    var t=actx.currentTime,o=actx.createOscillator(),g=actx.createGain();
-    o.type=type||'triangle';o.frequency.value=freq;
-    g.gain.setValueAtTime(vol||0.18,t);
-    g.gain.exponentialRampToValueAtTime(0.001,t+dur);
-    o.connect(g);g.connect(actx.destination);o.start(t);o.stop(t+dur+0.02);
-  }
-  function playKick(){if(actx){playTone(90,0.12,0.05,'sine')}}
-
-  function buildNotes(){
-    var rng=mulberry32(20261023);
-    var scale=[261.63,293.66,329.63,392,440];
-    gNotes=[];
-    for(var i=0;i<64;i++){
-      var r=rng();
-      var count=r<0.15?0:(r<0.8?1:2);
-      for(var c=0;c<count;c++){
-        var lane=Math.floor(rng()*4);
-        var pitch=scale[Math.floor(rng()*scale.length)];
-        if(count===2&&c===1){pitch*=2}
-        gNotes.push({time:i*gBeat,lane:lane,pitch:pitch,hit:false,el:null});
-      }
-    }
-    gNotes.sort(function(a,b){return a.time-b.time});
-  }
-
-  function resetGame(){
-    gScore=0;gCombo=0;gMaxCombo=0;gPerfect=0;gGood=0;gMiss=0;gElapsed=0;gLastBeat=-1;gEnded=false;gStartT=null;
-    document.getElementById('gScore').textContent='0';
-    document.getElementById('gJudge').textContent='';
-    document.getElementById('gEnd').style.display='none';
-    var st=document.getElementById('gStage');
-    var olds=st.querySelectorAll('.note');
-    for(var k=0;k<olds.length;k++){olds[k].remove()}
-    buildNotes();
-    var rect=st.getBoundingClientRect();
-    gJudgeY=rect.height-76;
-    gTravel=gJudgeY+70;
-    for(var j=0;j<gNotes.length;j++){
-      var d=document.createElement('div');
-      d.className='note';
-      d.style.left=(4+gNotes[j].lane*25)+'%';
-      d.style.top='-70px';
-      st.appendChild(d);
-      gNotes[j].el=d;
-    }
-  }
-
-  function startGame(){
-    ensureAudio();
-    document.getElementById('gameOverlay').classList.add('show');
+  /* ---------- 班级音游厅 · 霓虹轨迹 ---------- */
+  function openNeon(){
+    var ov=document.getElementById('neonOverlay');
+    document.getElementById('neonFrame').src='neon-trace.html';
+    ov.classList.add('show');
     document.body.classList.add('lock-scroll');
-    resetGame();
-    gState='play';
-    if(gRaf){cancelAnimationFrame(gRaf)}
-    gRaf=requestAnimationFrame(gFrame);
   }
-  function quitGame(){
-    gState='idle';
-    if(gRaf){cancelAnimationFrame(gRaf)}
-    document.getElementById('gameOverlay').classList.remove('show');
+  function closeNeon(){
+    document.getElementById('neonOverlay').classList.remove('show');
     document.body.classList.remove('lock-scroll');
+    document.getElementById('neonFrame').src='about:blank';
   }
-  function showJudge(txt,cls){
-    var el=document.getElementById('gJudge');
-    el.textContent=txt;
-    el.className='game-judge '+cls;
-  }
-  function hitNote(n,txt){
-    n.hit=true;
-    if(txt==='PERFECT'){
-      gPerfect++;gCombo++;
-      playTone(n.pitch,0.28,0.2);
-      gScore+=100*(1+Math.floor(gCombo/10)*0.1);
-      showJudge('PERFECT','');
-    }else if(txt==='GOOD'){
-      gGood++;gCombo++;
-      playTone(n.pitch*1.02,0.2,0.14);
-      gScore+=50;
-      showJudge('GOOD','good');
-    }else{
-      gMiss++;gCombo=0;
-      playTone(110,0.15,0.08,'sawtooth');
-      showJudge('MISS','miss');
-      n.el.style.opacity=0.25;
-    }
-    gScore=Math.round(gScore);
-    if(gCombo>gMaxCombo){gMaxCombo=gCombo}
-    document.getElementById('gScore').textContent=gScore.toLocaleString();
-    n.el.classList.add(txt==='PERFECT'?'hitp':'hitg');
-  }
-  function tapLane(lane){
-    if(gState!=='play')return;
-    var best=null;
-    for(var i=0;i<gNotes.length;i++){
-      var n=gNotes[i];
-      if(n.hit||n.lane!==lane)continue;
-      if(!best||Math.abs(gElapsed-n.time)<Math.abs(gElapsed-best.time)){best=n}
-    }
-    if(!best)return;
-    var d=gElapsed-best.time;
-    if(d<-0.12||d>0.12)return;
-    if(Math.abs(d)<=0.05){hitNote(best,'PERFECT')}
-    else{hitNote(best,'GOOD')}
-  }
-  function gFrame(now){
-    if(gState!=='play')return;
-    if(gStartT===null){gStartT=now;gElapsed=0}
-    var dt=Math.min(0.05,(now-gStartT)/1000);
-    gStartT=now;
-    gElapsed+=dt;
-    var b=Math.floor(gElapsed/gBeat);
-    if(b>gLastBeat){gLastBeat=b;if(b%2===0){playKick()}}
-    for(var i=0;i<gNotes.length;i++){
-      var n=gNotes[i];
-      if(n.hit)continue;
-      var diff=gElapsed-n.time;
-      if(diff>0.12){
-        n.hit=true;gMiss++;gCombo=0;
-        playTone(110,0.12,0.06,'sawtooth');
-        n.el.style.opacity=0.2;
-        document.getElementById('gScore').textContent=gScore.toLocaleString();
-      }else{
-        var p=(gElapsed-n.time+gLead)/gLead;
-        var y=-70+Math.max(0,p)*gTravel;
-        n.el.style.transform='translateY('+y+'px)';
-      }
-    }
-    var lastT=gNotes.length?gNotes[gNotes.length-1].time:0;
-    if(gElapsed>lastT+1.6&&!gEnded){gEnded=true;endGame()}
-    gRaf=requestAnimationFrame(gFrame);
-  }
-  function endGame(){
-    gState='end';
-    var judged=gPerfect+gGood+gMiss;
-    if(!judged){judged=1}
-    var pr=gPerfect/judged;
-    var rank=pr>=0.95?'S':(pr>=0.8?'A':((gPerfect+gGood)/judged>=0.7?'B':'C'));
-    document.getElementById('gRank').textContent=rank;
-    document.getElementById('gEndScore').textContent=gScore.toLocaleString();
-    document.getElementById('gEndCombo').textContent=gMaxCombo;
-    document.getElementById('gEndDetail').textContent=gPerfect+' / '+gGood+' / '+gMiss;
-    document.getElementById('gEnd').style.display='block';
-  }
-  var gKeys={KeyA:0,KeyS:1,KeyD:2,KeyK:3};
-  document.addEventListener('keydown',function(e){
-    if(gState!=='play')return;
-    if(gKeys.hasOwnProperty(e.code)){e.preventDefault();tapLane(gKeys[e.code])}
+  window.addEventListener('message',function(e){
+    if(e.data==='neon-exit'){closeNeon()}
   });
-
-  /* 触摸适配：多点触控 + 按轨道直接打 */
-  document.querySelector('.game-keys').addEventListener('touchstart',function(e){
-    if(gState!=='play')return;
-    e.preventDefault();
-    for(var i=0;i<e.changedTouches.length;i++){
-      var t=e.changedTouches[i];
-      var el=document.elementFromPoint(t.clientX,t.clientY);
-      var la=el?el.getAttribute('data-lane'):null;
-      if(la!==null){
-        el.classList.add('touched');
-        setTimeout(function(node){node.classList.remove('touched')},120,el);
-        tapLane(parseInt(la,10));
-      }
-    }
-  },{passive:false});
-  document.getElementById('gStage').addEventListener('touchstart',function(e){
-    if(gState!=='play')return;
-    e.preventDefault();
-    var rect=this.getBoundingClientRect();
-    for(var i=0;i<e.changedTouches.length;i++){
-      var x=e.changedTouches[i].clientX-rect.left;
-      var lane=Math.floor(x/rect.width*4);
-      if(lane>=0&&lane<4){tapLane(lane)}
-    }
-  },{passive:false});
 </script>
 </body>
 </html>

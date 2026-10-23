@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0b0e1a">
+<meta name="format-detection" content="telephone=no">
+<title>霓虹轨迹 NEON TRACE · 网页音游</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
+html,body{height:100%;overflow:hidden;background:#0b0e1a;color:#e8ecf8;overscroll-behavior:none;
+  font-family:-apple-system,BlinkMacSystemFont,"HarmonyOS Sans SC","MiSans","PingFang SC","Microsoft YaHei",sans-serif}
+body{position:fixed;inset:0;touch-action:none}
+#game{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;z-index:1}
+
+/* ---------- 屏幕状态机 ---------- */
+.screen{position:fixed;inset:0;display:none;flex-direction:column;z-index:10;
+  padding:calc(env(safe-area-inset-top) + 14px) calc(env(safe-area-inset-right) + 16px) calc(env(safe-area-inset-bottom) + 14px) calc(env(safe-area-inset-left) + 16px);
+  touch-action:pan-y;overflow-y:auto;-webkit-overflow-scrolling:touch}
+body[data-state="boot"]   #scr-boot,
+body[data-state="menu"]   #scr-menu,
+body[data-state="paused"] #scr-pause,
+body[data-state="result"] #scr-result{display:flex}
+
+/* ---------- 通用控件 ---------- */
+.big-btn{display:block;margin:26px auto 0;padding:16px 58px;font-size:20px;font-weight:700;letter-spacing:4px;
+  color:#06121a;background:linear-gradient(135deg,#57e6ff,#7c9bff);border:none;border-radius:999px;
+  box-shadow:0 0 24px rgba(87,230,255,.45),0 4px 18px rgba(0,0,0,.5);cursor:pointer;transition:transform .12s}
+.big-btn:active{transform:scale(.95)}
+.btn-row{display:flex;gap:12px;justify-content:center;margin-top:22px;flex-wrap:wrap}
+.btn-row button{flex:1;min-width:96px;max-width:150px;padding:13px 0;font-size:15px;font-weight:600;color:#dfe7ff;
+  background:rgba(124,155,255,.12);border:1px solid rgba(124,155,255,.35);border-radius:14px;cursor:pointer}
+.btn-row button:active{transform:scale(.96)}
+.btn-row button.primary{color:#06121a;background:linear-gradient(135deg,#57e6ff,#7c9bff);border:none;font-weight:700}
+.panel{width:min(420px,100%);margin:auto;background:rgba(13,17,32,.86);border:1px solid rgba(255,255,255,.09);
+  border-radius:22px;padding:26px 22px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  box-shadow:0 18px 60px rgba(0,0,0,.55);text-align:center}
+.hint{font-size:12px;color:#8b93b4;margin-top:14px;line-height:1.7}
+.icon-btn{width:38px;height:38px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);
+  color:#dfe7ff;font-size:16px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+.icon-btn:active{transform:scale(.92)}
+.link-btn{margin-top:18px;padding:8px 22px;font-size:13px;letter-spacing:2px;color:#9aa3c4;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);border-radius:999px;cursor:pointer}
+.link-btn:active{transform:scale(.96)}
+
+/* ---------- Boot ---------- */
+#scr-boot{align-items:center;justify-content:center;text-align:center}
+.logo{font-size:44px;font-weight:800;letter-spacing:6px;
+  background:linear-gradient(135deg,#8ff3ff,#b39dff 55%,#ff9ecb);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 22px rgba(139,125,255,.5))}
+.logo-sub{margin-top:8px;font-size:12px;letter-spacing:6px;color:#7d86ab}
+.boot-tag{margin-top:26px;display:inline-block;padding:5px 14px;border-radius:999px;font-size:11px;letter-spacing:2px;
+  color:#9ff3ff;border:1px solid rgba(87,230,255,.35);background:rgba(87,230,255,.08)}
+
+/* ---------- 菜单 ---------- */
+.menu-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.menu-head .logo{font-size:24px;letter-spacing:3px}
+.menu-tools{display:flex;gap:8px}
+.song-list{display:flex;flex-direction:column;gap:12px;width:min(460px,100%);margin:0 auto}
+.song-card{display:flex;align-items:center;gap:12px;padding:14px;border-radius:18px;cursor:pointer;
+  background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);transition:border-color .15s,background .15s}
+.song-card.sel{border-color:rgba(87,230,255,.55);background:rgba(87,230,255,.08)}
+.song-card:active{transform:scale(.99)}
+.song-dot{width:12px;height:12px;border-radius:50%;flex:none;box-shadow:0 0 10px currentColor}
+.song-info{flex:1;min-width:0}
+.song-name{font-size:17px;font-weight:700}
+.song-meta{font-size:11px;color:#8b93b4;margin-top:3px}
+.song-best{font-size:11px;color:#ffd166;margin-top:3px}
+.diff-pills{display:flex;gap:6px;flex:none}
+.pill{width:38px;padding:6px 0;font-size:12px;font-weight:700;color:#9aa3c4;background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.1);border-radius:10px;cursor:pointer}
+.pill.sel{color:#06121a;background:linear-gradient(135deg,#57e6ff,#7c9bff);border-color:transparent}
+.play-btn{flex:none;width:52px;height:52px;border-radius:50%;border:none;cursor:pointer;font-size:13px;font-weight:800;color:#06121a;
+  background:linear-gradient(135deg,#57e6ff,#7c9bff);box-shadow:0 0 16px rgba(87,230,255,.4)}
+.play-btn:active{transform:scale(.92)}
+.menu-foot{width:min(460px,100%);margin:16px auto 0;display:flex;flex-direction:column;gap:10px}
+.set-row{display:flex;align-items:center;gap:10px;font-size:12px;color:#9aa3c4}
+.set-row span{min-width:52px;text-align:right;color:#dfe7ff;font-variant-numeric:tabular-nums}
+input[type=range]{flex:1;-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;background:rgba(255,255,255,.15);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;
+  background:#8ff3ff;box-shadow:0 0 10px rgba(87,230,255,.6);cursor:pointer}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border:none;border-radius:50%;background:#8ff3ff;cursor:pointer}
+
+/* ---------- HUD ---------- */
+#hud{position:fixed;inset:0;display:none;z-index:5;pointer-events:none}
+body[data-state="playing"] #hud{display:block}
+#hud-score{position:absolute;top:calc(env(safe-area-inset-top) + 12px);left:calc(env(safe-area-inset-left) + 16px);
+  font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:1px;text-shadow:0 2px 12px rgba(0,0,0,.8)}
+#hud-acc{position:absolute;top:calc(env(safe-area-inset-top) + 46px);left:calc(env(safe-area-inset-left) + 16px);
+  font-size:12px;color:#9aa3c4;font-variant-numeric:tabular-nums}
+#btn-pause{position:absolute;top:calc(env(safe-area-inset-top) + 12px);right:calc(env(safe-area-inset-right) + 16px);
+  width:42px;height:42px;border-radius:13px;border:1px solid rgba(255,255,255,.16);background:rgba(10,14,28,.55);
+  color:#dfe7ff;font-size:14px;cursor:pointer;pointer-events:auto;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+#btn-pause:active{transform:scale(.92)}
+#hud-combo{position:absolute;top:calc(env(safe-area-inset-top) + 74px);left:0;right:0;text-align:center}
+#combo-num{font-size:34px;font-weight:800;font-variant-numeric:tabular-nums;text-shadow:0 2px 14px rgba(0,0,0,.85)}
+.combo-lbl{display:block;font-size:10px;letter-spacing:4px;color:#8b93b4;margin-top:2px}
+#hud-songname{position:absolute;bottom:calc(env(safe-area-inset-bottom) + 18px);left:calc(env(safe-area-inset-left) + 16px);
+  font-size:11px;color:#767ea0;letter-spacing:1px}
+#hud-progress{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 10px);height:3px;background:rgba(255,255,255,.08)}
+#hud-progress-fill{height:100%;width:0;background:linear-gradient(90deg,#57e6ff,#b39dff);box-shadow:0 0 8px rgba(87,230,255,.6)}
+#countdown{position:absolute;inset:0;display:none;align-items:center;justify-content:center;
+  font-size:72px;font-weight:800;color:#fff;text-shadow:0 0 30px rgba(87,230,255,.8);font-variant-numeric:tabular-nums}
+
+/* ---------- 暂停 / 结算 ---------- */
+.panel h2{font-size:20px;letter-spacing:3px;margin-bottom:18px}
+.panel .set-row{margin:10px 0}
+#res-rank{font-size:64px;font-weight:800;line-height:1.1;
+  background:linear-gradient(135deg,#8ff3ff,#b39dff);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 18px rgba(139,125,255,.55))}
+#res-score{font-size:30px;font-weight:800;font-variant-numeric:tabular-nums;margin-top:4px}
+#res-acc{font-size:14px;color:#9aa3c4;margin-top:2px;font-variant-numeric:tabular-nums}
+#res-rks{margin-top:10px;font-size:13px;color:#ffd166;letter-spacing:1px}
+.res-stats{display:flex;justify-content:center;gap:14px;margin-top:16px;font-size:12px;font-variant-numeric:tabular-nums}
+.res-stats b{display:block;font-size:16px;margin-bottom:2px}
+.st-perfect b{color:#8ff3ff}.st-good b{color:#9df3a8}.st-bad b{color:#ffc46b}.st-miss b{color:#ff8fa3}
+.newbest{display:inline-block;margin-top:10px;padding:3px 12px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:2px;
+  color:#06121a;background:linear-gradient(135deg,#ffd166,#ff9ecb)}
+.hidden{display:none!important}
+@media (min-width:560px){ .song-list,.menu-foot{width:min(560px,100%)} }
+</style>
+</head>
+<body data-state="boot">
+<canvas id="game"></canvas>
+
+<!-- HUD -->
+<div id="hud">
+  <div id="hud-score">000000</div>
+  <div id="hud-acc">100.00%</div>
+  <button id="btn-pause">❚❚</button>
+  <div id="hud-combo"><span id="combo-num">0</span><span class="combo-lbl">COMBO</span></div>
+  <div id="hud-songname"></div>
+  <div id="hud-progress"><div id="hud-progress-fill"></div></div>
+  <div id="countdown"></div>
+</div>
+
+<!-- Boot -->
+<section id="scr-boot" class="screen">
+  <div class="boot-tag">PHIGROS-STYLE · WEB AUDIO SYNTH</div>
+  <h1 class="logo">霓虹轨迹</h1>
+  <div class="logo-sub">NEON TRACE</div>
+  <button id="btn-enter" class="big-btn">点击开始</button>
+  <button id="btn-exit" class="link-btn">返回12班主页</button>
+  <p class="hint">建议竖屏游玩 · 佩戴耳机体验更佳<br>多点触控已适配 · 内置 3 首原创合成曲</p>
+</section>
+
+<!-- Menu -->
+<section id="scr-menu" class="screen">
+  <header class="menu-head">
+    <div class="logo">霓虹轨迹</div>
+    <div class="menu-tools">
+      <button id="btn-back" class="icon-btn" title="返回12班主页">‹</button>
+      <button id="btn-mute" class="icon-btn" title="静音">🔊</button>
+      <button id="btn-fs" class="icon-btn" title="全屏">⛶</button>
+    </div>
+  </header>
+  <div class="song-list" id="song-list"></div>
+  <footer class="menu-foot">
+    <label class="set-row">音量<input id="set-vol" type="range" min="0" max="100" value="90"><span id="vol-val">90</span></label>
+    <label class="set-row">判定偏移<input id="set-off" type="range" min="-100" max="100" step="5" value="0"><span id="off-val">0 ms</span></label>
+    <p class="hint">玩法：音符沿判定线逼近，在它到达线时用手指直接触碰 · 轻扫音符需快速划动<br>偏移：判定偏慢就调负数，偏快就调正数</p>
+  </footer>
+</section>
+
+<!-- Pause -->
+<section id="scr-pause" class="screen">
+  <div class="panel">
+    <h2>已暂停</h2>
+    <label class="set-row">音量<input id="set-vol2" type="range" min="0" max="100" value="90"><span id="vol-val2">90</span></label>
+    <label class="set-row">判定偏移<input id="set-off2" type="range" min="-100" max="100" step="5" value="0"><span id="off-val2">0 ms</span></label>
+    <div class="btn-row">
+      <button id="btn-resume" class="primary">继续</button>
+      <button id="btn-restart">重试</button>
+      <button id="btn-quit">退出</button>
+    </div>
+    <p class="hint">Esc / P 暂停 · R 重试 · M 静音</p>
+  </div>
+</section>
+
+<!-- Result -->
+<section id="scr-result" class="screen">
+  <div class="panel">
+    <div id="res-rank">F</div>
+    <div id="res-score">000000</div>
+    <div id="res-acc">0.00%</div>
+    <div id="res-rks">RKS 0.00</div>
+    <div id="res-newbest" class="newbest hidden">NEW BEST</div>
+    <div class="res-stats">
+      <div class="st-perfect"><b id="c-perfect">0</b>Perfect</div>
+      <div class="st-good"><b id="c-good">0</b>Good</div>
+      <div class="st-bad"><b id="c-bad">0</b>Bad</div>
+      <div class="st-miss"><b id="c-miss">0</b>Miss</div>
+    </div>
+    <div class="btn-row">
+      <button id="btn-retry" class="primary">重试</button>
+      <button id="btn-tomenu">选曲</button>
+    </div>
+  </div>
+</section>
+
+<script>
+'use strict';
+/* =====================================================================
+ * 霓虹轨迹 NEON TRACE — Phigros 风格网页音游（单文件 / 零依赖）
+ * S1 Core 纯逻辑 · S2 曲目数据 · S3 音频引擎 · S4 判定 · S5 渲染
+ * S6 输入 · S7 UI/FSM · S8 启动
+ * ===================================================================== */
+
+/*__CORE_START__*/
+/* ============================ S1 Core（纯函数） ============================ */
+
+// ---------- 随机数（确定性种子） ----------
+function mulberry32(seed){ let a = seed>>>0; return function(){ a|=0; a = a+0x6D2B79F5|0; let t = Math.imul(a^a>>>15, 1|a); t = t+Math.imul(t^t>>>7, 61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+function hashStr(s){ let h=1779033703^s.length; for(let i=0;i<s.length;i++){ h = Math.imul(h ^ s.charCodeAt(i), 3432918353); h = h<<13 | h>>>19; } return (h ^ (h>>>16))>>>0; }
+
+// ---------- 缓动 ----------
+const Ease = {
+  linear: t=>t,
+  easeInOutSine: t=> -(Math.cos(Math.PI*t)-1)/2,
+  easeInQuad: t=>t*t,
+  easeOutQuad: t=>1-(1-t)*(1-t),
+  easeInOutCubic: t=> t<0.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2,
+  easeOutCubic: t=>1-Math.pow(1-t,3),
+  easeInCubic: t=>t*t*t,
+  easeOutBack: t=>{ const c1=1.70158, c3=c1+1; return 1 + c3*Math.pow(t-1,3) + c1*Math.pow(t-1,2); },
+};
+function lerp(a,b,t){ return a+(b-a)*t; }
+function clamp(v,a,b){ return v<a?a:(v>b?b:v); }
+function smoothstep(a,b,x){ const t=clamp((x-a)/(b-a),0,1); return t*t*(3-2*t); }
+
+// ---------- 节拍换算 ----------
+function beatToTime(beat,bpm){ return beat*60/bpm; }
+function timeToBeat(t,bpm){ return t*bpm/60; }
+
+// ---------- 判定窗口（秒） ----------
+const WINDOW = { P:0.08, G:0.16, B:0.24 };
+const HOLD_WINDOW = { P:0.09, G:0.18, B:0.26 };
+const RANK = { miss:0, bad:1, good:2, perfect:3 };
+function judgeWindow(err, w){ w = w||WINDOW; const e=Math.abs(err); if(e<=w.P) return 'perfect'; if(e<=w.G) return 'good'; if(e<=w.B) return 'bad'; return null; }
+
+// ---------- 计分 ----------
+function computeScore(c){
+  const total = c.total || 1;
+  const acc = Math.min(1, (c.perfect + 0.65*c.good) / total);
+  const score = Math.round(1e6 * acc);
+  let rank;
+  if(c.total>0 && c.perfect===c.total) rank = 'φ';
+  else if(acc>=0.97) rank='SSS'; else if(acc>=0.94) rank='S'; else if(acc>=0.90) rank='A';
+  else if(acc>=0.85) rank='B'; else if(acc>=0.80) rank='C'; else rank='F';
+  return { score, acc, rank, rks: +((c.const||0)*acc).toFixed(2) };
+}
+
+/* ============================ S2 曲目数据 ============================ */
+// 16 字符 = 1 小节 16 分音符；'1'-'7' 音级，'8' 高八度主音，'-' 休止；鼓组 'x' 击打
+const SCALES = { minor:[0,2,3,5,7,8,10], major:[0,2,4,5,7,9,11] };
+function degToMidi(root, scale, d){ return d===8 ? root+12 : root + SCALES[scale][d-1]; }
+
+function flattenSong(song){
+  const steps = [];
+  const off = SCALES[song.scale];
+  for(const name of song.arrangement){
+    const sec = song.sections[name];
+    for(let b=0; b<sec.bars.length; b++){
+      const bar = sec.bars[b];
+      const chord = sec.chords[b % sec.chords.length];
+      for(let s=0; s<16; s++){
+        const lc = bar[s] || '-';
+        steps.push({
+          lead: (lc>='1' && lc<='8') ? degToMidi(song.root, song.scale, +lc) : null,
+          kick:  sec.kick[s]==='x',
+          snare: sec.snare[s]==='x',
+          hat:   sec.hat[s]==='x',
+          bass:  sec.bass[s]==='x' ? (song.root-24 + off[chord-1] + (s%2 ? 7 : 0)) : null,
+        });
+      }
+    }
+  }
+  return steps;
+}
+
+const SONGS = [
+{
+  id:'neon-drift', name:'霓虹漂移', en:'NEON DRIFT', bpm:128, hue:190, scale:'minor', root:57,
+  desc:'方波芯片音色 · 轻快漂移',
+  lead:{ type:'square', gain:0.20, dur:0.13, cutoff:2800 },
+  const:{ EZ:4.2, HD:8.6, AT:12.8 },
+  sections:{
+    intro:{ bars:['----------------','----------------','----------------','----------------'],
+      kick:'x-------x---x---', snare:'----------------', hat:'--x---x---x---x-', bass:'----------------', chords:[1,1,4,4] },
+    A:{ bars:[
+      '1-3-5-3-6-5-3-1-','2-4-6-4-7-6-4-2-','3-5-7-5-8-7-5-3-','6-7-6-5-3-2-1---',
+      '1-3-5-3-6-5-3-1-','2-4-6-4-7-6-4-2-','3-5-7-5-8-7-5-3-','6-5-3-2-1-------'],
+      kick:'x-------x-------', snare:'----x-------x---', hat:'--x---x---x-x-x', bass:'x-x-x-x-x-x-x-x', chords:[1,4,5,3,1,4,5,3] },
+    B:{ bars:[
+      '1-1-3-3-5-5-3-3-','2-2-4-4-6-6-4-4-','3-3-5-5-7-7-5-5-','8-8-7-7-6-6-5-5-',
+      '1-3-5-8-7-5-3-1-','2-4-6-8-7-6-4-2-','3-5-7-8-7-5-3-5-','6-4-2-1---------'],
+      kick:'x-------x-------', snare:'----x-------x---', hat:'x-x-x-x-x-x-x-x', bass:'x-x-x-x-x-x-x-x', chords:[1,4,5,3,1,4,5,3] },
+    outro:{ bars:['1-------3-------','5-------6-------','8-------7-------','5---------------'],
+      kick:'x---------------', snare:'----------------', hat:'----------------', bass:'x---------------', chords:[1,4,5,1] },
+  },
+  arrangement:['intro','A','B','A','B','outro'],
+},
+{
+  id:'starlight-waltz', name:'星圆舞', en:'STARLIGHT WALTZ', bpm:96, hue:280, scale:'major', root:60,
+  desc:'三角波旋律 · 温柔摇曳',
+  lead:{ type:'triangle', gain:0.26, dur:0.22, cutoff:2200 },
+  const:{ EZ:3.8, HD:7.9, AT:11.5 },
+  sections:{
+    intro:{ bars:['----------------','----------------','----------------','----------------'],
+      kick:'x-------x-------', snare:'----------------', hat:'----x-------x---', bass:'x-------x-------', chords:[1,1,4,4] },
+    A:{ bars:[
+      '1---3---5---3---','5---6---5---3---','4---5---6---5---','3---2---1-------',
+      '1---3---5---6---','5---4---3---2---','3---5---6---5---','1---------------'],
+      kick:'x-------x-------', snare:'----------------', hat:'----x-------x---', bass:'x---x---x---x---', chords:[1,4,5,3,1,4,5,1] },
+    B:{ bars:[
+      '3-5-6-1---6-5-3-','2-4-5-1---5-4-2-','1-3-4-6---4-3-1-','7---6---5-------',
+      '3-5-6-1---6-5-3-','2-4-5-1---5-4-2-','4-6-7-2---7-6-4-','1---------------'],
+      kick:'x-------x-------', snare:'----x-------x---', hat:'--x---x---x---x-', bass:'x-x-x-x-x-x-x-x', chords:[3,6,4,1,3,6,4,1] },
+    outro:{ bars:['1-------5-------','6-------4-------','3---------------','1---------------'],
+      kick:'x---------------', snare:'----------------', hat:'----------------', bass:'x---------------', chords:[1,4,5,1] },
+  },
+  arrangement:['intro','A','B','A','B','outro'],
+},
+{
+  id:'overdrive-99', name:'超载99', en:'OVERDRIVE 99', bpm:150, hue:340, scale:'minor', root:52,
+  desc:'锯齿琶音 · 高速冲刺',
+  lead:{ type:'sawtooth', gain:0.16, dur:0.11, cutoff:3200 },
+  const:{ EZ:5.2, HD:10.4, AT:14.7 },
+  sections:{
+    intro:{ bars:['----------------','----------------'],
+      kick:'x-------x-------', snare:'----x-------x---', hat:'x-x-x-x-x-x-x-x', bass:'x-x-x-x-x-x-x-x', chords:[1,1] },
+    A:{ bars:[
+      '1-3-5-3-1-3-5-8-','7-6-5-6-7-5-3-1-','2-4-6-4-2-4-6-8-','8-7-6-5-3-2-1---',
+      '1-3-5-3-1-3-5-8-','7-6-5-6-7-5-3-1-','2-4-6-7-8-7-6-4-','3-2-1-----------'],
+      kick:'x-------x-------', snare:'----x-------x---', hat:'x-x-x-x-x-x-x-x', bass:'x-x-x-x-x-x-x-x', chords:[1,1,4,4,1,1,5,5] },
+    B:{ bars:[
+      '1-1-5-5-6-6-5-5-','2-2-6-6-7-7-6-6-','3-3-7-7-8-8-7-7-','5-5-8-8-7-6-5-3-',
+      '1-3-5-6-8-6-5-3-','2-4-6-7-8-7-6-4-','3-5-7-8-8-7-5-3-','6-4-3-2-1-------'],
+      kick:'x---x---x-x-x---', snare:'----x-------x---', hat:'x-x-x-x-x-x-x-x', bass:'x-x-x-x-x-x-x-x', chords:[1,4,5,3,1,4,5,3] },
+    outro:{ bars:['1-------3-------','5-------6-------','8-------7-------','1---------------'],
+      kick:'x-------x-------', snare:'----------------', hat:'----------------', bass:'x-------x-------', chords:[1,4,5,1] },
+  },
+  arrangement:['intro','A','B','A','B','A','outro'],
+},
+];
+
+// ---------- 难度配置 ----------
+const DIFFS = {
+  EZ: { label:'EZ', density:0.45, minGap:0.45, w:{ tap:0.85, hold:0.10, flick:0.05, drag:0 },    lines:1, double:0 },
+  HD: { label:'HD', density:1.00, minGap:0.25, w:{ tap:0.60, hold:0.12, flick:0.22, drag:0.06 }, lines:2, double:0 },
+  AT: { label:'AT', density:1.20, minGap:0.16, w:{ tap:0.50, hold:0.14, flick:0.26, drag:0.10 }, lines:2, double:0.08 },
+};
+const SKIP_BEATS = 4; // 前 4 拍留给倒计时
+
+// ---------- 判定线运动模板 ----------
+const LINE_TPL = {
+  drift:  { ease:'easeInOutSine', f:(b,ph)=>({ x:0.5+0.17*Math.sin(b*0.40+ph), y:0.30+0.06*Math.sin(b*0.23+ph*2), angle:10*Math.sin(b*0.31+ph) }) },
+  sweep:  { ease:'easeInOutCubic', f:(b,ph)=>{ const seg=Math.floor(b/8)%2; return { x:0.5, y:seg?0.30:0.62, angle:-8*Math.sin(b*0.40+ph) }; } },
+  rotate: { ease:'easeInOutSine', f:(b,ph)=>({ x:0.5+0.10*Math.sin(b*0.20+ph), y:0.5, angle:22*Math.sin(b*0.25+ph) }) },
+  zigzag: { ease:'easeInOutSine', f:(b,ph)=>({ x:0.5+0.12*Math.sin(b*0.50+ph), y:0.46, angle:18*Math.sin(b*0.50+ph+1) }) },
+};
+const TPL_KEYS = Object.keys(LINE_TPL);
+
+function lineStateFrom(e){ return { cx:e.x, cy:e.y, angle:e.angle, alpha:e.alpha }; }
+function lineStateAt(line, beat){
+  const ev = line.events;
+  if(beat <= ev[0].beat) return lineStateFrom(ev[0]);
+  if(beat >= ev[ev.length-1].beat) return lineStateFrom(ev[ev.length-1]);
+  let i=0; while(i < ev.length-1 && ev[i+1].beat < beat) i++;
+  const e0=ev[i], e1=ev[i+1];
+  const u = (beat - e0.beat) / (e1.beat - e0.beat);
+  const f = (Ease[e1.ease] || Ease.easeInOutSine)(u);
+  return lineStateFrom({ x:lerp(e0.x,e1.x,f), y:lerp(e0.y,e1.y,f), angle:lerp(e0.angle,e1.angle,f), alpha:lerp(e0.alpha,e1.alpha,f) });
+}
+// 归一化线状态 → 像素几何（端点/方向/法线）
+function lineGeom(st, W, H){
+  const rad = st.angle * Math.PI/180;
+  const dx = Math.cos(rad), dy = Math.sin(rad);
+  const half = 0.36 * W;
+  return {
+    ax: st.cx*W - dx*half, ay: st.cy*H - dy*half,
+    bx: st.cx*W + dx*half, by: st.cy*H + dy*half,
+    dx, dy, nx:-dy, ny:dx, alpha:st.alpha, cx:st.cx*W, cy:st.cy*H,
+  };
+}
+
+// ---------- 音符位置 ----------
+function notePosAt(noteTime, lineId, posX, t, chart, W, H, lead, V){
+  const line = chart.lines[lineId];
+  if(!line) return null;
+  const st = lineStateAt(line, timeToBeat(t, chart.bpm));
+  if(st.alpha < 0.02) return null;
+  const g = lineGeom(st, W, H);
+  const p = (t - (noteTime - lead)) / lead;
+  if(p < -0.02) return null;
+  const pc = clamp(p, -1, 1);
+  const dist = (1 - pc) * lead * V;
+  const baseX = lerp(g.ax, g.bx, posX), baseY = lerp(g.ay, g.by, posX);
+  return { x: baseX + g.nx*dist, y: baseY + g.ny*dist, alpha: g.alpha * smoothstep(0, 0.22, p), p, line:g };
+}
+
+// ---------- 谱面生成 ----------
+function makeNote(beat, lineId, type, posX, holdBeats, bpm){
+  return { beat, time:beatToTime(beat, bpm), lineId, type, posX, holdBeats:holdBeats||0, state:'idle', grade:null };
+}
+function makeLineScripts(song, totalBeats, lineCount, rng){
+  const out = [];
+  const build = (key, phase, hueOff, activeFrom, activeTo) => {
+    const tpl = LINE_TPL[key];
+    const ev = [];
+    for(let b=0; b<=totalBeats; b+=4){
+      const p = tpl.f(b, phase);
+      let alpha = 1;
+      if(b < activeFrom) alpha = 0;
+      else if(b < activeFrom+4) alpha = smoothstep(activeFrom, activeFrom+4, b);
+      if(b > activeTo-4) alpha = Math.min(alpha, 1 - smoothstep(activeTo-4, activeTo, b));
+      ev.push({ beat:b, x:p.x, y:p.y, angle:p.angle, alpha, ease:tpl.ease });
+    }
+    return { id:out.length, hue:(song.hue + hueOff) % 360, events:ev };
+  };
+  out.push(build(TPL_KEYS[Math.floor(rng()*TPL_KEYS.length)], 0, 0, -4, totalBeats));
+  if(lineCount === 2)
+    out.push(build(TPL_KEYS[Math.floor(rng()*TPL_KEYS.length)], 2.1, 40, Math.max(-4, totalBeats*0.5 - 8), totalBeats));
+  return out;
+}
+function generateChart(song, diff){
+  const cfg = DIFFS[diff];
+  const steps = flattenSong(song);
+  const totalBeats = steps.length / 4;
+  const rng = mulberry32(hashStr(song.id + ':' + diff));
+  const notes = [];
+  let lastBeat = -99;
+  const mid = totalBeats * 0.5;
+  for(let s=0; s<steps.length; s++){
+    const beat = s / 4;
+    if(beat < SKIP_BEATS) continue;
+    const st = steps[s];
+    if(st.lead == null) continue;
+    if(beat - lastBeat < cfg.minGap) continue;
+    if(rng() > cfg.density) continue;
+    lastBeat = beat;
+    const r = rng();
+    let type = 'tap', holdBeats = 0;
+    if(r < cfg.w.flick) type = 'flick';
+    else if(r < cfg.w.flick + cfg.w.hold){ type = 'hold'; holdBeats = rng() < 0.6 ? 1 : 2; }
+    else if(r < cfg.w.flick + cfg.w.hold + cfg.w.drag) type = 'drag';
+    const posX = clamp(0.5 + (rng()-0.5)*0.22, 0.12, 0.88);
+    let lineId = 0;
+    if(cfg.lines === 2)
+      lineId = (beat < mid - 8) ? 0 : (beat > mid + 8 ? 1 : (rng() < 0.5 ? 0 : 1));
+    notes.push(makeNote(beat, lineId, type, posX, holdBeats, song.bpm));
+    if(cfg.double > 0 && rng() < cfg.double)
+      notes.push(makeNote(beat, lineId, rng() < 0.5 ? 'tap' : 'flick', clamp(0.5 + (rng()-0.5)*0.34, 0.12, 0.88), 0, song.bpm));
+  }
+  const lines = makeLineScripts(song, totalBeats, cfg.lines, rng);
+  return { songId:song.id, diff, bpm:song.bpm, const:song.const[diff], totalBeats, lines, notes, steps };
+}
+/*__CORE_END__*/
+
+/* ============================ S3 音频引擎 ============================ */
+const AudioEngine = {
+  ctx:null, master:null, musicGain:null, sfxGain:null, comp:null, _noise:null,
+  song:null, steps:[], bpm:120, stepDur:0.5, nextStep:0, nextStepTime:0,
+  startTime:0, started:false, timer:null, muted:false, _nodes:new Set(),
+
+  ensure(){
+    if(this.ctx) return this.ctx;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    const ctx = new AC();
+    this.ctx = ctx;
+    this.comp = ctx.createDynamicsCompressor();
+    this.comp.threshold.value = -14; this.comp.ratio.value = 5; this.comp.knee.value = 24;
+    this.master = ctx.createGain(); this.master.gain.value = App.settings.volume;
+    this.musicGain = ctx.createGain(); this.musicGain.gain.value = 0.8;
+    this.sfxGain = ctx.createGain(); this.sfxGain.gain.value = 0.9;
+    this.musicGain.connect(this.comp); this.sfxGain.connect(this.comp);
+    this.comp.connect(this.master); this.master.connect(ctx.destination);
+    const len = Math.floor(ctx.sampleRate);
+    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for(let i=0;i<len;i++) d[i] = Math.random()*2-1;
+    this._noise = buf;
+    return ctx;
+  },
+  async unlock(){
+    this.ensure();
+    if(this.ctx.state !== 'running'){ try{ await this.ctx.resume(); }catch(e){} }
+  },
+  _reg(n){ this._nodes.add(n); n.onended = () => this._nodes.delete(n); },
+  stopAll(){
+    this._nodes.forEach(n => { try{ n.stop(); }catch(e){} });
+    this._nodes.clear();
+    if(this.timer){ clearInterval(this.timer); this.timer = null; }
+    this.started = false;
+  },
+  start(song, countdownBeats){
+    countdownBeats = countdownBeats == null ? 4 : countdownBeats;
+    this.ensure();
+    this.stopAll();
+    this.song = song;
+    this.steps = flattenSong(song);
+    this.bpm = song.bpm;
+    this.stepDur = 60 / song.bpm / 4;
+    this.nextStep = 0;
+    const now = this.ctx.currentTime;
+    const beatDur = 60 / song.bpm;
+    this.startTime = now + countdownBeats * beatDur;
+    this.nextStepTime = this.startTime;
+    for(let k=countdownBeats; k>=1; k--)
+      this.blip(this.startTime - k*beatDur, k===1 ? 920 : 620, 'square', 0.045, 0.13);
+    this.started = true;
+    this.timer = setInterval(() => this.tick(), 25);
+    this.tick();
+  },
+  tick(){
+    if(!this.ctx || !this.started) return;
+    const ahead = 0.12;
+    let guard = 0;
+    while(this.nextStepTime < this.ctx.currentTime + ahead && guard++ < 240){
+      if(this.nextStep < this.steps.length)
+        this.scheduleStep(this.steps[this.nextStep], this.nextStepTime);
+      this.nextStep++;
+      this.nextStepTime += this.stepDur;
+    }
+  },
+  scheduleStep(st, t){
+    if(st.kick) this.kick(t);
+    if(st.snare) this.snare(t);
+    if(st.hat) this.hat(t);
+    if(st.bass != null) this.bassNote(t, st.bass);
+    if(st.lead != null) this.leadNote(t, st.lead);
+  },
+  voice(t, opt){
+    const ctx = this.ctx;
+    const o = ctx.createOscillator();
+    o.type = opt.type || 'square';
+    o.frequency.setValueAtTime(opt.freq, t);
+    if(opt.slideTo) o.frequency.exponentialRampToValueAtTime(Math.max(1, opt.slideTo), t + (opt.slideTime || 0.1));
+    const attack = opt.attack != null ? opt.attack : 0.006;
+    const dur = opt.dur, rel = opt.release != null ? opt.release : 0.06;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(opt.gain, t + attack);
+    g.gain.setValueAtTime(opt.gain, t + Math.max(attack, dur));
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur + rel);
+    let node = o;
+    if(opt.cutoff){
+      const f = ctx.createBiquadFilter();
+      f.type = 'lowpass'; f.frequency.value = opt.cutoff; f.Q.value = 0.8;
+      o.connect(f); node = f;
+    }
+    node.connect(g); g.connect(this.musicGain);
+    o.start(t); o.stop(t + dur + rel + 0.05);
+    this._reg(o);
+  },
+  noise(t, opt){
+    const ctx = this.ctx;
+    const src = ctx.createBufferSource(); src.buffer = this._noise; src.loop = true;
+    const f = ctx.createBiquadFilter();
+    f.type = opt.filter || 'bandpass'; f.frequency.value = opt.freq || 1000; f.Q.value = opt.q != null ? opt.q : 0.9;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(opt.gain, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + opt.dur);
+    src.connect(f); f.connect(g); g.connect(this.musicGain);
+    src.start(t); src.stop(t + opt.dur + 0.02);
+    this._reg(src);
+  },
+  kick(t){ this.voice(t, { freq:160, slideTo:42, slideTime:0.11, type:'sine', gain:0.95, dur:0.10, release:0.06 });
+            this.noise(t, { filter:'highpass', freq:1200, gain:0.16, dur:0.02 }); },
+  snare(t){ this.noise(t, { filter:'bandpass', freq:1800, q:0.8, gain:0.48, dur:0.12 });
+            this.voice(t, { freq:190, type:'triangle', gain:0.26, dur:0.05, release:0.05 }); },
+  hat(t){ this.noise(t, { filter:'highpass', freq:7800, gain:0.18, dur:0.035 }); },
+  bassNote(t, midi){ this.voice(t, { freq:440*Math.pow(2,(midi-69)/12), type:'sawtooth', gain:0.30, dur:0.09, release:0.05, cutoff:460 }); },
+  leadNote(t, midi){ const L = this.song.lead;
+    this.voice(t, { freq:440*Math.pow(2,(midi-69)/12), type:L.type, gain:L.gain, dur:L.dur, release:0.07, cutoff:L.cutoff }); },
+  blip(t, freq, type, dur, gain, slideTo){
+    if(!this.ctx) return;
+    const o = this.ctx.createOscillator();
+    o.type = type; o.frequency.setValueAtTime(freq, t);
+    if(slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+    const g = this.ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(gain, t + 0.004);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(this.sfxGain);
+    o.start(t); o.stop(t + dur + 0.03);
+    this._reg(o);
+  },
+  noiseSfx(t, freq, dur, gain, filter){
+    if(!this.ctx) return;
+    const src = this.ctx.createBufferSource(); src.buffer = this._noise;
+    const f = this.ctx.createBiquadFilter();
+    f.type = filter || 'bandpass'; f.frequency.setValueAtTime(freq, t);
+    f.frequency.exponentialRampToValueAtTime(freq * 2.4, t + dur);
+    const g = this.ctx.createGain();
+    g.gain.setValueAtTime(gain, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    src.connect(f); f.connect(g); g.connect(this.sfxGain);
+    src.start(t); src.stop(t + dur + 0.02);
+    this._reg(src);
+  },
+  hitSfx(kind){
+    if(!this.ctx || this.muted) return;
+    const t = this.ctx.currentTime + 0.001;
+    switch(kind){
+      case 'tap': this.blip(t, 1240, 'square', 0.045, 0.15); break;
+      case 'drag': this.blip(t, 880, 'triangle', 0.05, 0.14); break;
+      case 'flick': this.blip(t, 660, 'sawtooth', 0.06, 0.12, 1400); this.noiseSfx(t, 1400, 0.06, 0.11, 'bandpass'); break;
+      case 'holdStart': this.blip(t, 920, 'triangle', 0.08, 0.16); break;
+      case 'holdEnd': this.blip(t, 1560, 'triangle', 0.06, 0.14); break;
+      case 'miss': this.blip(t, 170, 'sine', 0.09, 0.18); break;
+    }
+  },
+  gameTime(){ return (this.ctx && this.started) ? this.ctx.currentTime - this.startTime : 0; },
+  pause(){ if(this.ctx && this.ctx.state === 'running') this.ctx.suspend(); },
+  resume(){ if(this.ctx && this.ctx.state === 'suspended') this.ctx.resume(); },
+  setVolume(v){ App.settings.volume = v; if(this.master) this.master.gain.setTargetAtTime(this.muted ? 0 : v, this.ctx.currentTime, 0.02); },
+  setMuted(m){ this.muted = m; if(this.master) this.master.gain.setTargetAtTime(m ? 0 : App.settings.volume, this.ctx.currentTime, 0.02); },
+};
+
+/* ============================ S4 判定引擎 ============================ */
+class Judge {
+  constructor(chart, fx){
+    this.chart = chart;
+    this.fx = fx;
+    this.notes = chart.notes.map(n => Object.assign({}, n, {
+      state:'idle', grade:null, judgedAt:0, holdPtr:-1, upT:0,
+      tailTime: n.time + (n.holdBeats || 0) * 60 / chart.bpm,
+      lastPos:null,
+    }));
+    this.i = 0;
+    this.combo = 0; this.maxCombo = 0;
+    this.counts = { perfect:0, good:0, bad:0, miss:0 };
+    this.total = this.notes.length;
+    this.finished = false;
+    this.lastNoteTime = this.notes.length ? this.notes[this.notes.length - 1].tailTime : 0;
+  }
+  pos(n, t){ return notePosAt(n.time, n.lineId, n.posX, t, this.chart, App.W, App.H, App.lead, App.V); }
+  covering(pos){
+    if(!pos) return null;
+    let best = null, bd = App.hitR;
+    Input.pointers.forEach(p => {
+      const d = Math.hypot(p.x - pos.x, p.y - pos.y);
+      if(d <= bd){ bd = d; best = p; }
+    });
+    return best;
+  }
+  fast(p){ return p.speed >= 0.5; }
+  _award(grade){
+    this.counts[grade]++;
+    if(grade === 'bad') this.combo = 0;
+    else { this.combo++; if(this.combo > this.maxCombo) this.maxCombo = this.combo; }
+  }
+  hit(n, p, err){
+    const grade = judgeWindow(err, WINDOW) || 'bad';
+    n.grade = grade; n.state = 'done'; n.judgedAt = App.nowT;
+    this._award(grade);
+    const pos = n.lastPos;
+    if(pos) this.fx.hit(pos.x, pos.y, grade, n, this.chart);
+    AudioEngine.hitSfx(n.type === 'hold' ? 'holdStart' : n.type);
+  }
+  hitHoldHead(n, p, err){
+    const grade = judgeWindow(err, HOLD_WINDOW) || 'bad';
+    n.grade = grade; n.headGrade = grade; n.state = 'holding'; n.holdPtr = p.id; n.judgedAt = App.nowT;
+    this._award(grade);
+    const pos = n.lastPos;
+    if(pos) this.fx.hit(pos.x, pos.y, grade, n, this.chart);
+    AudioEngine.hitSfx('holdStart');
+  }
+  miss(n){
+    n.grade = 'miss'; n.state = 'done'; n.judgedAt = App.nowT;
+    this.counts.miss++; this.combo = 0;
+    const pos = n.lastPos;
+    if(pos) this.fx.miss(pos.x, pos.y);
+    AudioEngine.hitSfx('miss');
+  }
+  judgeHoldTail(n, atT, broke){
+    // hold 整体只计一次判定：取头/尾中较差的一级
+    let grade = 'bad';
+    if(!broke) grade = judgeWindow(atT - n.tailTime, HOLD_WINDOW) || 'bad';
+    n.state = 'done'; n.judgedAt = App.nowT;
+    if(RANK[grade] > RANK[n.headGrade]){
+      this.counts[n.headGrade]--;
+      this.counts[grade]++;
+      if(grade === 'bad') this.combo = Math.max(0, this.combo - 1);
+      n.grade = grade;
+      const pos = n.lastPos;
+      if(pos) this.fx.hit(pos.x, pos.y, grade, n, this.chart);
+    }
+    AudioEngine.hitSfx('holdEnd');
+  }
+  onDown(p, t){
+    const N = this.notes;
+    for(let j = this.i; j < N.length; j++){
+      const n = N[j];
+      const w = n.type === 'hold' ? HOLD_WINDOW : WINDOW;
+      if(n.time > t + w.G + 0.05) break;
+      if(n.state !== 'idle' || n.type === 'flick') continue;
+      const err = t - n.time;
+      if(err < -w.P || err > w.G) continue;   // 过早/过晚的按压不立即判定，交给帧循环
+      const pos = this.pos(n, t);
+      if(!pos) continue;
+      if(Math.hypot(p.x - pos.x, p.y - pos.y) <= App.hitR){ this.hit(n, p, err); return; }
+    }
+  }
+  onUp(p, t){
+    const N = this.notes;
+    for(let j = this.i; j < N.length; j++){
+      const n = N[j];
+      if(n.time > t + WINDOW.G + 0.05) break;
+      if(n.state === 'holding' && n.holdPtr === p.id){ this.judgeHoldTail(n, t, false); continue; }
+      if(n.state !== 'idle' || n.type !== 'flick') continue;
+      if(Math.abs(t - n.time) > WINDOW.G || p.moved < 22) continue;
+      const pos = this.pos(n, t);
+      if(pos && Math.hypot(p.x - pos.x, p.y - pos.y) <= App.hitR * 1.2){ this.hit(n, p, t - n.time); return; }
+    }
+  }
+  update(t){
+    const N = this.notes;
+    while(this.i < N.length){
+      const n = N[this.i];
+      if(n.state === 'done') this.i++;
+      else if(n.state === 'idle' && t > n.time + WINDOW.B + 0.05){ this.miss(n); this.i++; }
+      else break;
+    }
+    for(let j = this.i; j < N.length; j++){
+      const n = N[j];
+      if(n.time - App.lead > t + 0.05) break;
+      const pos = this.pos(n, t);
+      n.lastPos = pos;
+      if(n.state === 'idle'){
+        if(!pos) continue;
+        const err = t - n.time;
+        // 仅在核心窗口内检查手指覆盖（音符到达判定线附近才可判定，防止休息手指提前误判）
+        if(n.type === 'hold'){
+          if(Math.abs(err) <= HOLD_WINDOW.P){
+            const p = this.covering(pos);
+            if(p) this.hitHoldHead(n, p, err);
+          }
+          if(n.state === 'idle' && err > HOLD_WINDOW.B) this.miss(n);
+        } else {
+          if(Math.abs(err) <= WINDOW.P){
+            const p = this.covering(pos);
+            if(p && (n.type !== 'flick' || this.fast(p))) this.hit(n, p, err);
+          }
+          if(n.state === 'idle' && err > WINDOW.B) this.miss(n);
+        }
+      } else if(n.state === 'holding'){
+        const p = Input.pointers.get(n.holdPtr);
+        if(!p){ this.judgeHoldTail(n, t, false); }
+        else {
+          const d = Math.hypot(p.x - pos.x, p.y - pos.y);
+          if(d > App.hitR * 1.6) this.judgeHoldTail(n, t, true);
+          else if(t >= n.tailTime + HOLD_WINDOW.P) this.judgeHoldTail(n, t, false);
+        }
+      }
+    }
+    if(!this.finished && this.i >= N.length && t > this.lastNoteTime + 1.2) this.finished = true;
+  }
+  allDone(){ return this.finished; }
+}
+
+/* ============================ S5 渲染 + 特效 ============================ */
+const FX = {
+  parts:[], rings:[], texts:[], flashes:[],
+  reset(){ this.parts.length = 0; this.rings.length = 0; this.texts.length = 0; this.flashes = []; },
+  hit(x, y, grade, n, chart){
+    const hue = chart.lines[n.lineId].hue;
+    this.flashes[n.lineId] = Math.min(1, (this.flashes[n.lineId] || 0) + 0.8);
+    const col = grade === 'perfect' ? '#aef6ff' : grade === 'good' ? '#9df3a8' : '#ffc46b';
+    this.rings.push({ x, y, r:16, vr: grade === 'perfect' ? 300 : 220, life:0.32, max:0.32, col, w:3 });
+    const cnt = grade === 'perfect' ? 7 : 4;
+    for(let k=0; k<cnt && this.parts.length < 180; k++){
+      const a = Math.random() * Math.PI * 2, sp = 60 + Math.random() * 160;
+      this.parts.push({ x, y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp, life:0.45 + Math.random()*0.2, max:0.65, size:2 + Math.random()*3, col });
+    }
+    const label = grade === 'perfect' ? 'PERFECT' : grade === 'good' ? 'GOOD' : 'BAD';
+    this.texts.push({ x, y:y - 30, text:label, life:0.45, max:0.45, col, size: grade === 'perfect' ? 15 : 13 });
+  },
+  miss(x, y){
+    this.texts.push({ x, y:y - 28, text:'MISS', life:0.45, max:0.45, col:'#ff8fa3', size:13 });
+    for(let k=0; k<4 && this.parts.length < 180; k++){
+      const a = Math.random() * Math.PI * 2, sp = 40 + Math.random() * 80;
+      this.parts.push({ x, y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp, life:0.35, max:0.35, size:2, col:'#7d86ab' });
+    }
+  },
+  update(dt){
+    for(let i=this.parts.length-1; i>=0; i--){
+      const p = this.parts[i]; p.life -= dt;
+      if(p.life <= 0){ this.parts.splice(i,1); continue; }
+      p.x += p.vx*dt; p.y += p.vy*dt; p.vx *= 0.92; p.vy *= 0.92;
+    }
+    for(let i=this.rings.length-1; i>=0; i--){
+      const r = this.rings[i]; r.life -= dt;
+      if(r.life <= 0){ this.rings.splice(i,1); continue; }
+      r.r += r.vr * dt;
+    }
+    for(let i=this.texts.length-1; i>=0; i--){
+      const tx = this.texts[i]; tx.life -= dt;
+      if(tx.life <= 0){ this.texts.splice(i,1); continue; }
+      tx.y -= 34 * dt;
+    }
+    for(let i=0; i<this.flashes.length; i++) this.flashes[i] = Math.max(0, this.flashes[i] - dt * 3.2);
+  },
+};
+
+const Renderer = {
+  canvas:null, ctx:null, W:0, H:0, dpr:1, bgGrad:null, pulseGrad:null,
+  init(canvas){ this.canvas = canvas; this.ctx = canvas.getContext('2d'); this.resize(); },
+  resize(){
+    this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.W = window.innerWidth; this.H = window.innerHeight;
+    this.canvas.width = Math.round(this.W * this.dpr);
+    this.canvas.height = Math.round(this.H * this.dpr);
+    this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    const g = this.ctx.createRadialGradient(this.W*0.5, this.H*0.42, 10, this.W*0.5, this.H*0.5, Math.max(this.W, this.H)*0.85);
+    g.addColorStop(0, '#151b36'); g.addColorStop(0.55, '#0d1124'); g.addColorStop(1, '#070912');
+    this.bgGrad = g;
+    const pg = this.ctx.createRadialGradient(0, 0, 10, 0, 0, 100);
+    pg.addColorStop(0, 'rgba(110,130,230,0.9)'); pg.addColorStop(1, 'rgba(110,130,230,0)');
+    this.pulseGrad = pg;
+  },
+  frame(t, dt, mode){
+    const ctx = this.ctx, W = this.W, H = this.H;
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = this.bgGrad; ctx.fillRect(0, 0, W, H);
+    // 节拍脉冲背景
+    const bpm = (mode === 'play' && App.chart) ? App.chart.bpm : 108;
+    const phase = (t * bpm / 60) % 1;
+    const pulse = Math.pow(1 - phase, 3);
+    ctx.save();
+    ctx.globalAlpha = 0.05 + 0.10 * pulse;
+    const rad = Math.min(W, H) * (0.5 + 0.22 * pulse);
+    ctx.translate(W/2, H*0.5); ctx.scale(rad/100, rad/100);
+    ctx.fillStyle = this.pulseGrad;
+    ctx.fillRect(-100, -100, 200, 200);
+    ctx.restore();
+    // 判定线
+    if(mode === 'play' && App.chart){
+      const beat = timeToBeat(t, App.chart.bpm);
+      App.chart.lines.forEach((line, li) => {
+        const st = lineStateAt(line, beat);
+        if(st.alpha < 0.02) return;
+        const g = lineGeom(st, W, H);
+        const flash = FX.flashes[li] || 0;
+        ctx.save();
+        ctx.lineCap = 'round';
+        ctx.globalAlpha = Math.min(1, st.alpha) * 0.30;
+        ctx.strokeStyle = `hsl(${line.hue}, 90%, 62%)`;
+        ctx.lineWidth = 14 + 10 * flash;
+        ctx.beginPath(); ctx.moveTo(g.ax, g.ay); ctx.lineTo(g.bx, g.by); ctx.stroke();
+        ctx.globalAlpha = Math.min(1, st.alpha);
+        ctx.lineWidth = 5 + 3 * flash;
+        ctx.beginPath(); ctx.moveTo(g.ax, g.ay); ctx.lineTo(g.bx, g.by); ctx.stroke();
+        ctx.restore();
+      });
+      this.drawNotes(t);
+    } else {
+      // 菜单/结算背景：一条缓慢漂移的线
+      const p = LINE_TPL.drift.f(t * 108 / 60, 0.7);
+      const g = lineGeom(lineStateFrom({ x:p.x, y:p.y, angle:p.angle, alpha:0.5 }), W, H);
+      ctx.save();
+      ctx.globalAlpha = 0.32; ctx.strokeStyle = '#57e6ff'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(g.ax, g.ay); ctx.lineTo(g.bx, g.by); ctx.stroke();
+      ctx.restore();
+    }
+    // 特效
+    ctx.save();
+    for(const r of FX.rings){
+      const a = r.life / r.max;
+      ctx.globalAlpha = a * 0.9;
+      ctx.strokeStyle = r.col; ctx.lineWidth = r.w * a + 0.5;
+      ctx.beginPath(); ctx.arc(r.x, r.y, r.r, 0, Math.PI*2); ctx.stroke();
+    }
+    for(const p of FX.parts){
+      ctx.globalAlpha = Math.max(0, p.life / p.max);
+      ctx.fillStyle = p.col;
+      ctx.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size);
+    }
+    ctx.textAlign = 'center';
+    for(const tx of FX.texts){
+      ctx.globalAlpha = tx.life / tx.max;
+      ctx.font = `800 ${tx.size}px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif`;
+      ctx.fillStyle = tx.col;
+      ctx.fillText(tx.text, tx.x, tx.y);
+    }
+    ctx.restore();
+  },
+  drawNotes(t){
+    const ctx = this.ctx, W = this.W, H = this.H, chart = App.chart, judge = App.judge;
+    if(!judge) return;
+    const N = judge.notes;
+    for(let j = judge.i; j < N.length; j++){
+      const n = N[j];
+      if(n.time - App.lead > t + 0.05) break;
+      const pos = notePosAt(n.time, n.lineId, n.posX, t, chart, W, H, App.lead, App.V);
+      if(!pos || pos.alpha < 0.03) continue;
+      const hue = chart.lines[n.lineId].hue;
+      if(n.state === 'holding'){
+        const tailPos = notePosAt(n.tailTime, n.lineId, n.posX, t, chart, W, H, App.lead, App.V);
+        const tx = tailPos ? tailPos.x : pos.x - pos.line.nx * (n.tailTime - t) * App.V;
+        const ty = tailPos ? tailPos.y : pos.y - pos.line.ny * (n.tailTime - t) * App.V;
+        ctx.save();
+        ctx.globalAlpha = pos.alpha * 0.75;
+        ctx.strokeStyle = `hsl(${hue+60}, 85%, 60%)`;
+        ctx.lineWidth = 10; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(pos.x, pos.y); ctx.lineTo(tx, ty); ctx.stroke();
+        ctx.restore();
+      }
+      if(n.state === 'done') continue;
+      this.drawNote(pos.x, pos.y, n.type, hue, pos.alpha, pos.line);
+    }
+  },
+  drawNote(x, y, type, hue, alpha, line){
+    const ctx = this.ctx, R = 23;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    if(type === 'drag'){
+      ctx.fillStyle = `hsl(${hue}, 60%, 82%)`;
+      ctx.beginPath(); ctx.arc(x, y, 9, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = `hsl(${hue}, 70%, 75%)`; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(x, y, R - 4, 0, Math.PI*2); ctx.stroke();
+    } else {
+      ctx.fillStyle = type === 'flick' ? `hsl(${hue+35}, 90%, 62%)`
+                  : type === 'hold'  ? `hsl(${hue+60}, 85%, 60%)`
+                  : `hsl(${hue}, 85%, 60%)`;
+      ctx.beginPath(); ctx.arc(x, y, R, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.9)'; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.arc(x, y, R, 0, Math.PI*2); ctx.stroke();
+      if(type === 'flick'){
+        const dx = -line.nx, dy = -line.ny;
+        ctx.save(); ctx.translate(x, y); ctx.rotate(Math.atan2(dy, dx));
+        ctx.fillStyle = 'rgba(255,255,255,0.95)';
+        ctx.beginPath(); ctx.moveTo(15, 0); ctx.lineTo(2, -8); ctx.lineTo(2, 8); ctx.closePath(); ctx.fill();
+        ctx.restore();
+      }
+    }
+    ctx.restore();
+  },
+};
+
+/* ============================ S6 输入层 ============================ */
+const Input = {
+  pointers:new Map(),
+  attach(canvas){
+    const rel = e => { const r = canvas.getBoundingClientRect(); return { x:e.clientX - r.left, y:e.clientY - r.top }; };
+    canvas.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      if(App.state !== 'playing') return;
+      try{ canvas.setPointerCapture(e.pointerId); }catch(err){}
+      const rc = rel(e), gt = AudioEngine.gameTime();
+      const p = { id:e.pointerId, x:rc.x, y:rc.y, t:gt, downX:rc.x, downY:rc.y, downT:gt,
+                  vx:0, vy:0, speed:0, moved:0, lastT:gt, upT:0 };
+      this.pointers.set(p.id, p);
+      if(App.judge) App.judge.onDown(p, gt);
+    }, { passive:false });
+    canvas.addEventListener('pointermove', e => {
+      const p = this.pointers.get(e.pointerId);
+      if(!p) return;
+      e.preventDefault();
+      const rc = rel(e), t = AudioEngine.gameTime();
+      const dt = Math.max(0.004, t - p.lastT);
+      const vx = (rc.x - p.x) / dt, vy = (rc.y - p.y) / dt;
+      p.vx = 0.7 * p.vx + 0.3 * vx; p.vy = 0.7 * p.vy + 0.3 * vy;
+      p.speed = Math.hypot(p.vx, p.vy);
+      p.moved += Math.hypot(rc.x - p.x, rc.y - p.y);
+      p.x = rc.x; p.y = rc.y; p.lastT = t;
+    }, { passive:false });
+    const up = e => {
+      const p = this.pointers.get(e.pointerId);
+      if(!p) return;
+      e.preventDefault();
+      const t = AudioEngine.gameTime();
+      p.upT = t;
+      if(App.judge) App.judge.onUp(p, t);
+      this.pointers.delete(e.pointerId);
+    };
+    canvas.addEventListener('pointerup', up, { passive:false });
+    canvas.addEventListener('pointercancel', up, { passive:false });
+  },
+};
+
+/* ============================ S7 UI / 状态机 ============================ */
+const $ = id => document.getElementById(id);
+const App = {
+  state:'boot',
+  settings:{ volume:0.9, muted:false, offset:0 },
+  W:0, H:0, hitR:64, lead:0.85, V:300,
+  song:null, diff:'HD', chart:null, judge:null, nowT:0,
+  wakeLock:null,
+  loadSettings(){ try{ Object.assign(this.settings, JSON.parse(localStorage.getItem('neontrace.settings') || '{}')); }catch(e){} },
+  saveSettings(){ try{ localStorage.setItem('neontrace.settings', JSON.stringify(this.settings)); }catch(e){} },
+  getBest(songId, diff){ try{ return +(localStorage.getItem('neontrace.best.' + songId + '.' + diff) || 0); }catch(e){ return 0; } },
+  setBest(songId, diff, score){
+    try{ if(score > this.getBest(songId, diff)){ localStorage.setItem('neontrace.best.' + songId + '.' + diff, String(score)); return true; } }catch(e){}
+    return false;
+  },
+  setState(s){ this.state = s; document.body.dataset.state = s; },
+  computeMetrics(){
+    this.W = window.innerWidth; this.H = window.innerHeight;
+    this.hitR = clamp(Math.min(this.W, this.H) * 0.17, 54, 76);
+    this.V = 0.62 * Math.min(this.W, this.H);
+  },
+};
+
+function renderMenu(){
+  const list = $('song-list');
+  list.innerHTML = '';
+  SONGS.forEach(song => {
+    const card = document.createElement('div');
+    card.className = 'song-card' + (App.song && App.song.id === song.id ? ' sel' : '');
+    const best = App.getBest(song.id, App.diff);
+    card.innerHTML =
+      `<div class="song-dot" style="color:hsl(${song.hue},90%,62%);background:hsl(${song.hue},90%,62%)"></div>
+       <div class="song-info">
+         <div class="song-name">${song.name} <span style="font-size:11px;color:#8b93b4;font-weight:400">${song.en}</span></div>
+         <div class="song-meta">${song.bpm} BPM · ${song.desc}</div>
+         <div class="song-best">${best > 0 ? 'BEST ' + best.toLocaleString() : '暂无成绩'}</div>
+       </div>
+       <div class="diff-pills">${['EZ','HD','AT'].map(d =>
+         `<button class="pill${d === App.diff ? ' sel' : ''}" data-diff="${d}">${d}</button>`).join('')}</div>
+       <button class="play-btn">开始</button>`;
+    card.querySelector('.play-btn').addEventListener('click', ev => { ev.stopPropagation(); startGame(song, App.diff); });
+    card.querySelectorAll('.pill').forEach(btn =>
+      btn.addEventListener('click', ev => { ev.stopPropagation(); App.diff = btn.dataset.diff; renderMenu(); }));
+    card.addEventListener('click', () => { App.song = song; renderMenu(); });
+    list.appendChild(card);
+  });
+}
+
+function startGame(song, diff){
+  App.song = song; App.diff = diff;
+  AudioEngine.unlock().then(() => {
+    App.chart = generateChart(song, diff);
+    App.judge = new Judge(App.chart, FX);
+    FX.reset();
+    $('hud-songname').textContent = song.name + ' · ' + diff;
+    App.setState('playing');
+    AudioEngine.start(song, 4);
+    requestWakeLock();
+  }).catch(() => {});
+}
+function pauseGame(){
+  if(App.state !== 'playing') return;
+  App.setState('paused');
+  AudioEngine.pause();
+  releaseWakeLock();
+}
+function resumeGame(){
+  if(App.state !== 'paused') return;
+  App.setState('playing');
+  AudioEngine.resume();
+  requestWakeLock();
+}
+function restartGame(){
+  const song = App.song, diff = App.diff;
+  AudioEngine.stopAll();
+  startGame(song, diff);
+}
+function quitToMenu(){
+  AudioEngine.stopAll();
+  FX.reset();
+  App.chart = null; App.judge = null;
+  App.setState('menu');
+  renderMenu();
+}
+function finishGame(){
+  if(App.state !== 'playing') return;
+  AudioEngine.stopAll();
+  const c = App.judge.counts;
+  const res = computeScore({ perfect:c.perfect, good:c.good, bad:c.bad, miss:c.miss, total:App.judge.total, const:App.chart.const });
+  $('res-rank').textContent = res.rank;
+  $('res-score').textContent = res.score.toLocaleString();
+  $('res-acc').textContent = (res.acc * 100).toFixed(2) + '%';
+  $('res-rks').textContent = 'RKS ' + res.rks.toFixed(2) + (res.rank === 'φ' ? ' · AWARD: LEGACY' : '');
+  $('c-perfect').textContent = c.perfect;
+  $('c-good').textContent = c.good;
+  $('c-bad').textContent = c.bad;
+  $('c-miss').textContent = c.miss;
+  $('res-newbest').classList.toggle('hidden', !App.setBest(App.song.id, App.diff, res.score));
+  App.setState('result');
+  releaseWakeLock();
+}
+function updateHUD(t){
+  const j = App.judge;
+  const acc = (j.counts.perfect + 0.65 * j.counts.good) / Math.max(1, j.total);
+  $('hud-score').textContent = Math.round(1e6 * acc).toLocaleString();
+  $('hud-acc').textContent = (acc * 100).toFixed(2) + '%';
+  $('combo-num').textContent = j.combo;
+  $('hud-progress-fill').style.width = (clamp(t / (j.lastNoteTime + 1.2), 0, 1) * 100) + '%';
+  const cd = $('countdown');
+  if(t < 0){
+    const n = Math.ceil(-t / (60 / App.chart.bpm));
+    cd.style.display = 'flex';
+    cd.textContent = String(clamp(n, 1, 4));
+  } else {
+    cd.style.display = 'none';
+  }
+}
+
+async function requestWakeLock(){
+  try{ if('wakeLock' in navigator && !App.wakeLock) App.wakeLock = await navigator.wakeLock.request('screen'); }catch(e){}
+}
+function releaseWakeLock(){
+  if(App.wakeLock){ try{ App.wakeLock.release(); }catch(e){} App.wakeLock = null; }
+}
+
+function wireUI(){
+  const exitNeon = () => { if(window.parent && window.parent !== window) window.parent.postMessage('neon-exit', '*'); };
+  $('btn-exit').addEventListener('click', exitNeon);
+  $('btn-back').addEventListener('click', exitNeon);
+  $('btn-enter').addEventListener('click', async () => {
+    await AudioEngine.unlock();
+    App.setState('menu');
+    renderMenu();
+  });
+  $('btn-mute').addEventListener('click', toggleMute);
+  $('btn-fs').addEventListener('click', () => {
+    const el = document.documentElement;
+    if(document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    else if(el.requestFullscreen) el.requestFullscreen().catch(() => {});
+  });
+  const vol = $('set-vol'), vol2 = $('set-vol2'), off = $('set-off'), off2 = $('set-off2');
+  const syncVol = v => {
+    App.settings.volume = v / 100;
+    AudioEngine.setVolume(App.settings.volume);
+    vol.value = v; vol2.value = v;
+    $('vol-val').textContent = v; $('vol-val2').textContent = v;
+    App.saveSettings();
+  };
+  const syncOff = v => {
+    App.settings.offset = +v;
+    off.value = v; off2.value = v;
+    $('off-val').textContent = v + ' ms'; $('off-val2').textContent = v + ' ms';
+    App.saveSettings();
+  };
+  vol.addEventListener('input', () => syncVol(+vol.value));
+  vol2.addEventListener('input', () => syncVol(+vol2.value));
+  off.addEventListener('input', () => syncOff(+off.value));
+  off2.addEventListener('input', () => syncOff(+off2.value));
+  $('btn-pause').addEventListener('click', pauseGame);
+  $('btn-resume').addEventListener('click', resumeGame);
+  $('btn-restart').addEventListener('click', restartGame);
+  $('btn-quit').addEventListener('click', quitToMenu);
+  $('btn-retry').addEventListener('click', restartGame);
+  $('btn-tomenu').addEventListener('click', quitToMenu);
+  window.addEventListener('keydown', e => {
+    if(e.key === 'Escape' || e.key === 'p' || e.key === 'P'){
+      if(App.state === 'playing') pauseGame();
+      else if(App.state === 'paused') resumeGame();
+    } else if(e.key === 'r' || e.key === 'R'){
+      if(App.state === 'playing' || App.state === 'paused') restartGame();
+    } else if(e.key === 'm' || e.key === 'M'){ toggleMute(); }
+  });
+  document.addEventListener('visibilitychange', () => {
+    if(document.hidden && App.state === 'playing') pauseGame();
+  });
+}
+function toggleMute(){
+  App.settings.muted = !App.settings.muted;
+  AudioEngine.setMuted(App.settings.muted);
+  $('btn-mute').textContent = App.settings.muted ? '🔇' : '🔊';
+  App.saveSettings();
+}
+
+/* ============================ S8 启动 ============================ */
+(function boot(){
+  App.loadSettings();
+  App.song = SONGS[0];
+  App.computeMetrics();
+  Renderer.init($('game'));
+  Input.attach($('game'));
+  wireUI();
+  // 同步设置到 UI
+  const v0 = Math.round(App.settings.volume * 100), o0 = App.settings.offset;
+  $('set-vol').value = v0; $('set-vol2').value = v0;
+  $('vol-val').textContent = v0; $('vol-val2').textContent = v0;
+  $('set-off').value = o0; $('set-off2').value = o0;
+  $('off-val').textContent = o0 + ' ms'; $('off-val2').textContent = o0 + ' ms';
+  $('btn-mute').textContent = App.settings.muted ? '🔇' : '🔊';
+  window.addEventListener('resize', () => { App.computeMetrics(); Renderer.resize(); });
+  window.addEventListener('orientationchange', () => {
+    setTimeout(() => { App.computeMetrics(); Renderer.resize(); }, 150);
+  });
+  let last = performance.now();
+  function loop(now){
+    const dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
+    if(App.state === 'playing' && App.judge){
+      const t = AudioEngine.gameTime() + App.settings.offset / 1000;
+      App.nowT = t;
+      App.judge.update(t);
+      FX.update(dt);
+      updateHUD(t);
+      if(App.judge.allDone()) finishGame();
+      Renderer.frame(t, dt, 'play');
+    } else {
+      FX.update(dt);
+      Renderer.frame(now / 1000, dt, 'idle');
+    }
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
